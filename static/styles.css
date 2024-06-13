@@ -1,0 +1,201 @@
+#network-graph {
+    width: 100%;
+    height: 500px;
+    border: 0px solid #ccc;
+    transform-origin: center center;
+    
+}
+
+.nodes circle {
+    stroke: #fff;
+    stroke-width: 0px;
+    fill-opacity: 70%;
+}
+
+.node.selected {
+    fill: red;
+}
+
+.links line {
+    stroke: #999999b1;
+    stroke-opacity: 0;
+}
+
+.number-box {
+    width: 30px;
+    height: 30px;
+    font-family: Arial, sans-serif; /* Change the font */
+    font-size: 12px; /* Change the font size */
+    color: #3a3939; /* Change the text color */
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    border: none; /* Remove border */
+    margin: 0; /* Remove spaces between boxes */
+    padding: 4px; /* Add some padding inside the boxes */
+    box-sizing: border-box; /* Include padding and border in element's total width and height */
+}
+#number-grid {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+
+/* CSS for the dual-range slider */
+.noUi-horizontal {
+    align-items: center;
+    height: 10px; 
+    width: 80%;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 5%;
+    margin-right: 5%;
+    background-color: #ffffff; /* Slider track background color */
+    border-radius: 0px; /* Rounded corners */
+}
+.noUi-handle::before,
+.noUi-handle::after {
+    display: none; /* This removes the small lines */
+}
+.noUi-horizontal .noUi-handle {
+    top: -10px; /* Adjust the vertical alignment of handles */
+    width: 30px; /* Set the width of the handle */
+    height: 30px; /* Set the height of the handle */
+}
+
+.noUi-handle {
+    box-shadow: none; /* This removes the shadow */
+    background-color: #ffffff; /* Handle color */
+    border-radius:0%;
+    border: 0.5px solid #c5c5c5; /* Handle border color */
+    cursor: pointer;
+    width: 20px; /* Set the width of the handle */
+    height: 20px; /* Set the height of the handle */
+
+    
+}
+
+.noUi-connect {
+    background: #f4ce65; /* Connect bar color */
+    border: none;
+
+}
+
+.noUi-target {
+    background: #ffffff; /* Slider track background color */
+    border: none;
+
+}
+
+#node-size-slider {
+    width: 200px; /* Adjust as needed */
+    height: 10px; /* Adjust as needed */
+    margin-top: 15px; /* Space above the element */
+    margin-bottom: 10px; /* Space below the element */
+    margin-left: 1%; /* Space to the left of the element */
+    margin-right: 5%; /* Space to the right of the element */
+    background-color: #f4ce65; /* Slider track background color */
+    position: right; /* Allows you to specify position with top, right, bottom, left */
+    top: 0px; /* Adjust as needed */
+    left: 10px; /* Adjust as needed */
+}
+
+#graph-size-slider .noUi-handle {
+    background: #ffffff; /* Change the handle color to red */
+    height: 20px; /* Change the handle height */
+    width: 20px; /* Change the handle width */
+    border: none; /* Remove the handle border */
+    border-radius: 0%; /* Make the handle circular */
+}
+
+#graph-size-slider{
+    width: 10px; /* Adjust as needed */
+    height: 10px; /* Adjust as needed */
+    margin-top: 15px; /* Space above the element */
+    margin-bottom: 10px; /* Space below the element */
+    margin-left: 1%; /* Space to the left of the element */
+    margin-right: 5%; /* Space to the right of the element */
+    background-color: #f4ce65; /* Slider track background color */
+    position: right; /* Allows you to specify position with top, right, bottom, left */
+    top: 0px; /* Adjust as needed */
+    left: 10px; /* Adjust as needed */
+}
+
+#layout-dropdown {
+    width: 125px;
+    height: 25px;
+    margin-top: 4px ; /* Space above the element */
+    margin-bottom: 4px ; /* Space below the element */
+    padding: 4px; /* Space inside the element */
+    font-family: Arial, sans-serif; /* Change the font */
+    color: #3a3939; /* Change the text color */
+    font-size: 0px; /* Size of the text */
+    border-radius: 0px; /* Rounded corners */
+    border: 0px solid #b2b0b0; /* Border around the element */
+    appearance: none; /* Remove default arrow */
+    background: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>") no-repeat;
+    background-position: right 10px top 50%; /* Position the custom arrow */
+    background-size: 12px; /* Size of the custom arrow */
+}
+
+
+
+#node-size-factor,
+#edge-length-factor {
+    width: 35px;
+    height: 15px;
+    margin-top: 4px ; /* Space above the element */
+    margin-bottom: 4px ; /* Space below the element */
+    padding: 4px; /* Space inside the element */
+    font-family: Arial, sans-serif; /* Change the font */
+    color: #3a3939; /* Change the text color */
+    font-size: 0px; /* Size of the text */
+    border-radius: 0px; /* Rounded corners */
+    border: 0px solid #b2b0b0; /* Border around the element */
+}
+label {
+    margin-top: 4px; /* Space above the element */
+    margin-bottom: 4px; /* Space below the element */
+    padding: 4px; /* Space inside the element */
+    font-family: Arial, sans-serif; /* Change the font */
+    color: #3a3939; /* Change the text color */
+    font-size: 0px; /* Size of the text */
+    font-weight: bold; /* Make the label text bold */
+}
+
+/*#network-graph, #heatmap {
+    width: 100%;
+    height: 500px;
+    border: 0px solid #ccc;
+    margin-bottom: 20px;
+}*/
+.number-box {
+    display: inline-block;
+    font-size: 0px; /* Size of the text */
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 30px;
+    margin: 2px;
+}
+.slider-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 0px;
+    margin-bottom: 10px;
+}
+
+.slider {
+    width: 70%;
+}
+
+#node-size-slider {
+    width: 30%;
+    margin-top: 0px;
+    margin-bottom: 0px;
+
+}
