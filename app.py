@@ -7,9 +7,14 @@ app = Flask(__name__, static_url_path='', static_folder='static')
 
 @app.route('/data')
 def get_data():
-    # Load the Excel file
-    file_path = 'data/binaryCleanUserNumberCollections1Test024.xlsx'
-   df = pd.read_excel(file_path, index_col=0)
+    try:
+        # Load the Excel file
+        file_path = 'data/binaryCleanUserNumberCollections1Test024.xlsx'
+        df = pd.read_excel(file_path, index_col=0)
+        print("Excel file loaded successfully")
+    except Exception as e:
+        print(f"Error loading Excel file: {e}")
+        return jsonify({"error": str(e)}), 500
 
     # Create user collections from data
     user_collections = {user: set(df.index[df[user] == 1]) for user in df.columns}
@@ -53,7 +58,7 @@ def get_data():
     data = {"nodes": nodes, "links": links}
 
     # Debug statement to print the data
-    print(data)
+    print("Graph data prepared:", data)
 
     return jsonify(data)
 
@@ -67,4 +72,3 @@ def serve_static(path):
 
 if __name__ == '__main__':
     app.run(debug=True)
-
