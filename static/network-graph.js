@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function fetchData() {
-        fetch('/data1/binaryCleanUserNumberCollections1Test024.json')
+        fetch('https://jdboud.github.io/SRM/data/binaryCleanUserNumberCollections1Test024.json')
             .then(response => response.json())
             .then(data => {
                 graphData = data;
