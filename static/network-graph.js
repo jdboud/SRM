@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function fetchData() {
-        fetch('data/binaryCleanUserNumberCollections1Test024.xlsx') // Adjust this path according to your repository structure
+        fetch('data/binaryCleanUserNumberCollections1Test024.xlsx')  // Adjust this path according to your repository structure
             .then(response => response.arrayBuffer())
             .then(data => {
                 const workbook = XLSX.read(data, { type: 'array' });
