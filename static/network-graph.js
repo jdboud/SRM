@@ -73,94 +73,81 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function fetchData() {
-        fetch('data/binaryCleanUserNumberCollections1Test024.xlsx')  // Adjust this path according to your repository structure
-            .then(response => response.arrayBuffer())
+        fetch('/data')
+            .then(response => response.json())
             .then(data => {
-                const workbook = XLSX.read(data, { type: 'array' });
-                const sheetName = workbook.SheetNames[0];
-                const sheet = workbook.Sheets[sheetName];
-                const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-    
-                console.log('Fetched JSON:', json);  // Debugging statement to print the fetched JSON
-                processData(json);
+                console.log('Fetched JSON:', data);  // Debugging statement to print the fetched JSON
+                processData(data);
             })
             .catch(error => console.error('Error fetching data:', error)); // Handle fetch errors
     }
 
- function processData(json) {
-    // Convert the JSON data into the graph data format
-    const df = json.slice(1).map(row => {
-        const obj = {};
-        json[0].forEach((key, index) => {
-            obj[key] = row[index];
-        });
-        return obj;
-    });
-
-    console.log('Processed DataFrame:', df);  // Debugging statement to print the processed DataFrame
-
-    const userCollections = {};
-    df.forEach(row => {
-        Object.keys(row).forEach(user => {
-            if (!userCollections[user]) userCollections[user] = new Set();
-            if (row[user] === 1) userCollections[user].add(row[0]);
-        });
-    });
-
-    const commonGroups = {};
-    Object.entries(userCollections).forEach(([user1, indices1]) => {
-        Object.entries(userCollections).forEach(([user2, indices2]) => {
-            if (user1 !== user2) {
-                const commonIndices = new Set([...indices1].filter(x => indices2.has(x)));
-                if (commonIndices.size >= 2) {
-                    const sortedCommon = [...commonIndices].sort().join(',');
-                    if (!commonGroups[sortedCommon]) commonGroups[sortedCommon] = new Set();
-                    commonGroups[sortedCommon].add(user1);
-                    commonGroups[sortedCommon].add(user2);
+    function processData(data) {
+        // Convert the JSON data into the graph data format
+        const userCollections = {};
+        data.forEach(row => {
+            Object.keys(row).forEach(user => {
+                if (user !== 'Unnamed: 0') {
+                    if (!userCollections[user]) userCollections[user] = new Set();
+                    if (row[user] === 1) userCollections[user].add(row['Unnamed: 0']);
                 }
-            }
+            });
         });
-    });
 
-    console.log('Common Groups:', commonGroups);  // Debugging statement to print common groups
-
-    const G = new Map();
-    const minSize = 10;
-    const scaleFactor = 1;
-
-    Object.entries(commonGroups).forEach(([indices, users], groupId) => {
-        const groupName = `Group ${groupId + 1}`;
-        const numElements = indices.split(',').length;
-        const nodeSize = minSize + scaleFactor * (numElements - 2);
-        G.set(groupName, { numbers: indices.split(','), size: nodeSize, users: Array.from(users) });
-    });
-
-    console.log('Graph Structure:', G);  // Debugging statement to print the graph structure
-
-    const nodes = [];
-    const links = [];
-
-    G.forEach((data, group) => {
-        nodes.push({ id: group, size: data.size, numbers: data.numbers });
-        data.users.forEach(user1 => {
-            data.users.forEach(user2 => {
+        const commonGroups = {};
+        Object.entries(userCollections).forEach(([user1, indices1]) => {
+            Object.entries(userCollections).forEach(([user2, indices2]) => {
                 if (user1 !== user2) {
-                    const link = links.find(l => (l.source === user1 && l.target === user2) || (l.source === user2 && l.target === user1));
-                    if (link) {
-                        link.weight += 1;
-                    } else {
-                        links.push({ source: user1, target: user2, weight: 1 });
+                    const commonIndices = new Set([...indices1].filter(x => indices2.has(x)));
+                    if (commonIndices.size >= 2) {
+                        const sortedCommon = [...commonIndices].sort().join(',');
+                        if (!commonGroups[sortedCommon]) commonGroups[sortedCommon] = new Set();
+                        commonGroups[sortedCommon].add(user1);
+                        commonGroups[sortedCommon].add(user2);
                     }
                 }
             });
         });
-    });
 
-    graphData = { nodes, links };
-    console.log('Final Graph Data:', graphData);  // Debugging statement to print the final graph data
-    updateGraph(false); // Pass false to not use transitions initially
-    updateGrid();
-}
+        console.log('Common Groups:', commonGroups);  // Debugging statement to print common groups
+
+        const G = new Map();
+        const minSize = 10;
+        const scaleFactor = 1;
+
+        Object.entries(commonGroups).forEach(([indices, users], groupId) => {
+            const groupName = `Group ${groupId + 1}`;
+            const numElements = indices.split(',').length;
+            const nodeSize = minSize + scaleFactor * (numElements - 2);
+            G.set(groupName, { numbers: indices.split(','), size: nodeSize, users: Array.from(users) });
+        });
+
+        console.log('Graph Structure:', G);  // Debugging statement to print the graph structure
+
+        const nodes = [];
+        const links = [];
+
+        G.forEach((data, group) => {
+            nodes.push({ id: group, size: data.size, numbers: data.numbers });
+            data.users.forEach(user1 => {
+                data.users.forEach(user2 => {
+                    if (user1 !== user2) {
+                        const link = links.find(l => (l.source === user1 && l.target === user2) || (l.source === user2 && l.target === user1));
+                        if (link) {
+                            link.weight += 1;
+                        } else {
+                            links.push({ source: user1, target: user2, weight: 1 });
+                        }
+                    }
+                });
+            });
+        });
+
+        graphData = { nodes, links };
+        console.log('Final Graph Data:', graphData);  // Debugging statement to print the final graph data
+        updateGraph(false); // Pass false to not use transitions initially
+        updateGrid();
+    }
 
     function zoomed(event) {
         g.attr('transform', event.transform);
