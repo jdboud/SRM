@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function fetchData() {
-        fetch('/data')
+        fetch('/SRM/data')
             .then(response => response.json())
             .then(data => {
                 graphData = data;
