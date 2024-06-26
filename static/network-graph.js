@@ -76,18 +76,19 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch('/data')
             .then(response => response.json())
             .then(data => {
+                console.log('Fetched data:', data); // Log the fetched data
                 graphData = data;
                 const numNodes = graphData.nodes.length;
-
+    
                 // Determine initial node size factor proportionate to the number of nodes
                 nodeSizeFactor = Math.max(0.1, Math.min(10, 12 / Math.sqrt(numNodes)));
-
+    
                 // Set the initial value of the node size factor input
                 nodeSizeFactorInput.value = nodeSizeFactor;
-
+    
                 // Initialize the node size slider with the determined start value
                 nodeSizeSlider.noUiSlider.set(nodeSizeFactor);
-
+    
                 numbersRangeSlider.noUiSlider.updateOptions({
                     range: {
                         'min': 0,
@@ -95,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
                 numbersRangeSlider.noUiSlider.set([0, maxIndices]); // Set the slider to its maximum range initially
-
+    
                 updateGraph(false); // Pass false to not use transitions initially
                 updateGrid();
             })
