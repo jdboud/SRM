@@ -107,6 +107,8 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     
+        console.log('User Collections:', userCollections);  // Debugging statement to print user collections
+    
         const commonGroups = {};
         Object.entries(userCollections).forEach(([user1, indices1]) => {
             Object.entries(userCollections).forEach(([user2, indices2]) => {
