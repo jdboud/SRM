@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function fetchData() {
-        const dataUrl = 'https://jdboud.github.io/SRM/data/binaryCleanUserNumberCollections1Test024.xlsx';
+        const dataUrl = 'https://jdboud.github.io/SRM/data/binaryCleanUserNumberCollections2Test024.xlsx';
         fetch(dataUrl)
             .then(response => {
                 if (!response.ok) {
@@ -324,38 +324,27 @@ document.addEventListener('DOMContentLoaded', function() {
         // Prepare Venn diagram data
         const sets = [];
         const overlaps = [];
-        /* console.log('Graph Data:', graphData); // Debug statement to print the data in the browser console*/
-        console.log('Venn Data:', vennData); // Debug statement to print the Venn data in the browser console
 
-        // Create sets based on node groups
         graphData.nodes.forEach((node, index) => {
             sets.push({ sets: [node.id], size: node.numbers.length, label: `Group ${node.id}` });
         });
 
-        // Create overlaps based on links between nodes
         graphData.links.forEach(link => {
             const sourceIndex = graphData.nodes.findIndex(node => node.id === link.source.id);
             const targetIndex = graphData.nodes.findIndex(node => node.id === link.target.id);
             overlaps.push({ sets: [graphData.nodes[sourceIndex].id, graphData.nodes[targetIndex].id], size: link.weight });
         });
 
-        // Combine sets and overlaps
         const vennData = { sets, overlaps };
 
-        // Debugging statements to check data
-        console.log('Venn Data:', vennData);
-
-        // Render Venn diagram
         const chart = venn.VennDiagram().width(width).height(height);
         d3.select("#network-graph svg").datum(vennData).call(chart);
 
-        // Style the circles
         d3.selectAll(".venn-circle path")
             .style("fill-opacity", 0.5)
             .style("stroke", "#fff")
             .style("stroke-width", 2);
 
-        // Add labels
         d3.selectAll(".venn-circle text")
             .style("fill", "#000")
             .style("font-size", "12px")
