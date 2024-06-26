@@ -8,7 +8,7 @@ app = Flask(__name__, static_url_path='', static_folder='static')
 @app.route('/data')
 def get_data():
     # Load the Excel file
-    file_path = 'data/binaryCleanUserNumberCollections1Test024.xlsx'
+    file_path = 'https://jdboud.github.io/SRM/data/binaryCleanUserNumberCollections1Test024.xlsx'
     df = pd.read_excel(file_path, index_col=0)
 
     # Create user collections from data
