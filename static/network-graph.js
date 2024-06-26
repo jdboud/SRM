@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function fetchData() {
-        fetch('data/')
+        fetch('data/binaryCleanUserNumberCollections1Test024.xlsx')
             .then(response => response.json())
             .then(data => {
                 graphData = data;
