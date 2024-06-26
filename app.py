@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, send_from_directory
-import json
+import pandas as pd
 import networkx as nx
 from itertools import combinations
 import os
@@ -9,24 +9,16 @@ app = Flask(__name__, static_url_path='', static_folder='static')
 @app.route('/data')
 def get_data():
     try:
-        # Load the JSON file
-        file_path = os.path.join('data', 'binaryCleanUserNumberCollections1Test024.json')
-        with open(file_path, 'r') as f:
-            data = json.load(f)
-        print("JSON file loaded successfully")
+        # Load the Excel file
+        file_path = os.path.join('data', 'binaryCleanUserNumberCollections1Test024.xlsx')
+        df = pd.read_excel(file_path, index_col=0)
+        print("Excel file loaded successfully")
     except Exception as e:
-        print(f"Error loading JSON file: {e}")
+        print(f"Error loading Excel file: {e}")
         return jsonify({"error": str(e)}), 500
 
     # Create user collections from data
-    user_collections = {}
-    for row in data:
-        for user, value in row.items():
-            if user != 'Unnamed: 0':
-                if user not in user_collections:
-                    user_collections[user] = set()
-                if value == 1:
-                    user_collections[user].add(row['Unnamed: 0'])
+    user_collections = {user: set(df.index[df[user] == 1]) for user in df.columns}
 
     # Create common groups
     common_groups = {}
@@ -75,7 +67,7 @@ def get_data():
 def serve_index():
     return send_from_directory('', 'index.html')
 
-@app.route('/<path:path>')
+@app.route('/static/<path:path>')
 def serve_static(path):
     print(f"Serving static file: {path}")
     return send_from_directory(app.static_folder, path)
