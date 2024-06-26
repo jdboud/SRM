@@ -1,7 +1,7 @@
 #network-graph {
     width: 100%;
     height: 500px;
-    border: 5px solid #ccc;
+    border: 0px solid #ccc;
     transform-origin: center center;
     
 }
@@ -18,7 +18,8 @@
 
 .links line {
     stroke: #999999b1;
-    stroke-opacity: 0;
+    stroke-opacity: 1;
+    stroke-width: 0.1%;
 }
 
 .number-box {

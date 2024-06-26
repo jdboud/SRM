@@ -245,14 +245,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         .attr('cy', d => d.y);
                 });
 
-            // Update the forces
             simulation.force('link').links(graphData.links);
         }
 
-        // Sort nodes by size in descending order to ensure smaller nodes are drawn last (on top)
         const visibleNodes = graphData.nodes.filter(node => (node.numbers.length >= minIndices && node.numbers.length <= maxIndices) && (selectedNumbers.size === 0 || node.numbers.some(num => selectedNumbers.has(num))));
         const visibleLinks = graphData.links.filter(link => visibleNodes.some(node => node.id === link.source.id) && visibleNodes.some(node => node.id === link.target.id));
-        visibleNodes.sort((a, b) => (b.size * nodeSizeFactor) - (a.size * nodeSizeFactor)); // Descending order
+        visibleNodes.sort((a, b) => (b.size * nodeSizeFactor) - (a.size * nodeSizeFactor)); 
 
         const link = g.append('g')
             .attr('class', 'links')
@@ -267,7 +265,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .selectAll('circle')
             .data(visibleNodes)
             .enter().append('circle')
-            .attr('r', d => d.size * nodeSizeFactor) // Set the size immediately
+            .attr('r', d => d.size * nodeSizeFactor)
             .attr('fill', d => color(d.id))
             .call(d3.drag()
                 .on('start', dragstarted)
@@ -289,23 +287,20 @@ document.addEventListener('DOMContentLoaded', function() {
         node.attr('stroke', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 'black' : 'none')
             .attr('stroke-width', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 3 : 0);
 
-        // Apply transitions only when requested
         if (useTransitions) {
             node.transition()
-                .duration(500) // Duration in milliseconds
-                .attr('r', d => d.size * nodeSizeFactor); // Grow to target size
+                .duration(500)
+                .attr('r', d => d.size * nodeSizeFactor);
         } else {
-            node.attr('r', d => d.size * nodeSizeFactor); // Set size immediately
+            node.attr('r', d => d.size * nodeSizeFactor);
         }
 
-        // Apply the graph size factor only for the force layout
         if (layout === 'force') {
             g.attr('transform', `translate(${centerX}, ${centerY}) scale(${graphSizeFactor}) translate(${-centerX}, ${-centerY})`);
         } else {
             g.attr('transform', null);
         }
 
-        // Update node and link positions for non-force layouts
         link.attr('x1', d => d.source.x)
             .attr('y1', d => d.source.y)
             .attr('x2', d => d.target.x)
@@ -321,7 +316,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const width = svg.node().getBoundingClientRect().width;
         const height = svg.node().getBoundingClientRect().height;
 
-        // Prepare Venn diagram data
         const sets = [];
         const overlaps = [];
 
@@ -363,13 +357,12 @@ document.addEventListener('DOMContentLoaded', function() {
         numberGrid.selectAll('.number-box').remove();
 
         const numberBox = numberGrid.selectAll('.number-box')
-            .data([...allNumbers, 'X']) // Add 'X' for reset button
+            .data([...allNumbers, 'X'])
             .enter().append('div')
             .attr('class', 'number-box')
-            .style('fill', d => d === 'X' ? '#f4ce65' : '#39ea7d') // Orange fill for 'X', light gray for others
-            .style('background-color', d => d === 'X' ? '#ffffff' : (numbersInGroups.has(d) ? '#e0e0e0' : '#ffffff')) // Grey selectable numbers
-            .style('border', d => d === 'X' ? '4px solid #f4ce65' : '1px solid #e0e0e0') // Orange border for 'X', light gray for others
-
+            .style('fill', d => d === 'X' ? '#f4ce65' : '#39ea7d')
+            .style('background-color', d => d === 'X' ? '#ffffff' : (numbersInGroups.has(d) ? '#e0e0e0' : '#ffffff'))
+            .style('border', d => d === 'X' ? '4px solid #f4ce65' : '1px solid #e0e0e0')
             .text(d => d)
             .on('click', function(event, d) {
                 if (d === 'X') {
@@ -438,7 +431,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const gridSize = Math.floor(width / 24);
         const legendElementWidth = gridSize * 2;
         const buckets = 9;
-        const colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"]; // alternatively colorbrewer.YlGnBu[9]
+        const colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"];
         const users = d3.range(1, 101);
         const numbers = d3.range(1, 101);
 
@@ -523,5 +516,5 @@ document.addEventListener('DOMContentLoaded', function() {
         legend.exit().remove();
     }
 
-    fetchData(); // Fetch initial data when the page loads
+    fetchData();
 });
