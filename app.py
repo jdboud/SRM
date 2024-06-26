@@ -6,7 +6,7 @@ app = Flask(__name__, static_url_path='', static_folder='static')
 @app.route('/data')
 def get_data():
     # Load the JSON data from the GitHub URL
-    file_url = '/data/binaryCleanUserNumberCollections1Test024.xlsx'
+    file_url = 'https://jdboud.github.io/SRM/data/binaryCleanUserNumberCollections1Test024.xlsx'
     response = requests.get(file_url, verify=False)  # Disable SSL verification for development purposes
     if response.status_code != 200:
         return jsonify({"error": "Failed to load data"}), 500

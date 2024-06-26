@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function fetchData() {
-        fetch('/data')
+        fetch('https://jdboud.github.io/SRM/data')
             .then(response => response.json())
             .then(data => {
                 graphData = data;
