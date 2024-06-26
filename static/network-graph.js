@@ -74,7 +74,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function fetchData() {
         fetch('/data')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 console.log('Fetched data:', data); // Log the fetched data
                 graphData = data;
@@ -102,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => console.error('Error fetching data:', error)); // Handle fetch errors
     }
-
+    
     function zoomed(event) {
         g.attr('transform', event.transform);
     }
