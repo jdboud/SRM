@@ -80,7 +80,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const sheetName = workbook.SheetNames[0];
                 const sheet = workbook.Sheets[sheetName];
                 const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
+    
+                console.log('Fetched JSON:', json);  // Debugging statement to print the fetched JSON
                 processData(json);
             })
             .catch(error => console.error('Error fetching data:', error)); // Handle fetch errors
@@ -95,7 +96,9 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             return obj;
         });
-
+    
+        console.log('Processed DataFrame:', df);  // Debugging statement to print the processed DataFrame
+    
         const userCollections = {};
         df.forEach(row => {
             Object.keys(row).forEach(user => {
@@ -103,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (row[user] === 1) userCollections[user].add(row[0]);
             });
         });
-
+    
         const commonGroups = {};
         Object.entries(userCollections).forEach(([user1, indices1]) => {
             Object.entries(userCollections).forEach(([user2, indices2]) => {
@@ -118,21 +121,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         });
-
+    
+        console.log('Common Groups:', commonGroups);  // Debugging statement to print common groups
+    
         const G = new Map();
         const minSize = 10;
         const scaleFactor = 1;
-
+    
         Object.entries(commonGroups).forEach(([indices, users], groupId) => {
             const groupName = `Group ${groupId + 1}`;
             const numElements = indices.split(',').length;
             const nodeSize = minSize + scaleFactor * (numElements - 2);
             G.set(groupName, { numbers: indices.split(','), size: nodeSize, users: Array.from(users) });
         });
-
+    
+        console.log('Graph Structure:', G);  // Debugging statement to print the graph structure
+    
         const nodes = [];
         const links = [];
-
+    
         G.forEach((data, group) => {
             nodes.push({ id: group, size: data.size, numbers: data.numbers });
             data.users.forEach(user1 => {
@@ -148,13 +155,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
         });
-
+    
         graphData = { nodes, links };
-        console.log('Processed graph data:', graphData);
+        console.log('Final Graph Data:', graphData);  // Debugging statement to print the final graph data
         updateGraph(false); // Pass false to not use transitions initially
         updateGrid();
     }
-
+    
     function zoomed(event) {
         g.attr('transform', event.transform);
     }
