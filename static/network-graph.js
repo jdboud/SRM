@@ -73,7 +73,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function fetchData() {
-        fetch('data/binaryCleanUserNumberCollections2Test024.xlsx')
+        const dataUrl = 'https://jdboud.github.io/SRM/data/binaryCleanUserNumberCollections2Test024.xlsx';
+        fetch(dataUrl)
             .then(response => response.arrayBuffer())
             .then(data => {
                 const workbook = XLSX.read(data, { type: 'array' });
@@ -159,8 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
         heatmapContainer.style('display', layout === 'heatmap' ? 'block' : 'none');
         eulerContainer.style('display', layout === 'euler' ? 'block' : 'none');
 
-        // Rest of your updateGraph function logic...
-
+        // Continue with the rest of your updateGraph function logic...
     }
 
     function updateGrid() {
