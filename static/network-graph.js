@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     noUiSlider.create(nodeSizeSlider, { // Initialize the node size slider
-        start: [1],
+        start: [4],
         range: {
             'min': 0.1,
             'max': 10
@@ -64,12 +64,12 @@ document.addEventListener('DOMContentLoaded', function() {
     numbersRangeSlider.noUiSlider.on('update', updateGraph);
     nodeSizeSlider.noUiSlider.on('update', function(values, handle) {
         nodeSizeFactor = values[handle];
-        updateGraph();
+        updateGraph(true); // Pass true to use transitions
     });
 
     graphSizeSlider.noUiSlider.on('update', function(values, handle) {
         graphSizeFactor = values[handle];
-        updateGraph();
+        updateGraph(true); // Pass true to use transitions
     });
 
     function fetchData() {
@@ -77,11 +77,17 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 graphData = data;
-               /* console.log('Graph Data:', graphData); // Debug statement to print the data in the browser console*/
-               console.log('Graph Data:', graphData); // Debug statement to print the data in the browser console
+                const numNodes = graphData.nodes.length;
 
-                // Determine the maximum number of indices
-                maxIndices = Math.max(...graphData.nodes.map(node => node.numbers.length));
+                // Determine initial node size factor proportionate to the number of nodes
+                nodeSizeFactor = Math.max(0.1, Math.min(10, 12 / Math.sqrt(numNodes)));
+
+                // Set the initial value of the node size factor input
+                nodeSizeFactorInput.value = nodeSizeFactor;
+
+                // Initialize the node size slider with the determined start value
+                nodeSizeSlider.noUiSlider.set(nodeSizeFactor);
+
                 numbersRangeSlider.noUiSlider.updateOptions({
                     range: {
                         'min': 0,
@@ -90,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 numbersRangeSlider.noUiSlider.set([0, maxIndices]); // Set the slider to its maximum range initially
 
-                updateGraph();
+                updateGraph(false); // Pass false to not use transitions initially
                 updateGrid();
             })
             .catch(error => console.error('Error fetching data:', error)); // Handle fetch errors
@@ -100,43 +106,43 @@ document.addEventListener('DOMContentLoaded', function() {
         g.attr('transform', event.transform);
     }
 
-    function updateGraph() {
+    function updateGraph(useTransitions) {
         const layout = layoutDropdown.value;
         const edgeLengthFactor = edgeLengthFactorInput.value;
         const [minIndices, maxIndices] = numbersRangeSlider.noUiSlider.get().map(Number);
-    
+
         svg.style('display', layout === 'heatmap' || layout === 'euler' ? 'none' : 'block');
         heatmapContainer.style('display', layout === 'heatmap' ? 'block' : 'none');
         eulerContainer.style('display', layout === 'euler' ? 'block' : 'none');
-    
+
         if (layout === 'heatmap') {
             updateHeatmap();
             return;
         }
-    
+
         if (layout === 'euler') {
             updateEulerDiagram();
             return;
         }
-        
+
         if (layout === 'venn') {
             updateVennDiagram();
             return;
         }
-    
+
         g.selectAll('*').remove();
-    
+
         const width = svg.node().getBoundingClientRect().width;
         const height = svg.node().getBoundingClientRect().height;
-    
+
         const centerX = width / 2;
         const centerY = height / 2;
-    
+
         function boundNode(node) {
             node.x = Math.max(node.size * nodeSizeFactor, Math.min(width - node.size * nodeSizeFactor, node.x));
             node.y = Math.max(node.size * nodeSizeFactor, Math.min(height - node.size * nodeSizeFactor, node.y));
         }
-    
+
         if (layout === 'circular') {
             const angleStep = (2 * Math.PI) / graphData.nodes.length;
             graphData.nodes.forEach((node, i) => {
@@ -176,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const simulation = d3.forceSimulation(graphData.nodes)
                 .alphaDecay(0.05)
                 .velocityDecay(0.85)
-                .force('link', d3.forceLink(graphData.links).id(d => d.id).distance(d => Math.max(50, 100 - edgeLengthFactor * d.weight)))
+                .force('link', d3.forceLink(graphData.links).id(d => d.id).distance(d => Math.max(20, 100 - edgeLengthFactor * d.weight)))
                 .force('charge', d3.forceManyBody().strength(-200))
                 .force('center', d3.forceCenter(centerX, centerY))
                 .on('tick', () => {
@@ -188,16 +194,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     node.attr('cx', d => d.x)
                         .attr('cy', d => d.y);
                 });
-    
+
             // Update the forces
             simulation.force('link').links(graphData.links);
         }
 
-        // Sort nodes by size in ascending order to ensure smaller nodes are drawn last (on top)
+        // Sort nodes by size in descending order to ensure smaller nodes are drawn last (on top)
         const visibleNodes = graphData.nodes.filter(node => (node.numbers.length >= minIndices && node.numbers.length <= maxIndices) && (selectedNumbers.size === 0 || node.numbers.some(num => selectedNumbers.has(num))));
         const visibleLinks = graphData.links.filter(link => visibleNodes.some(node => node.id === link.source.id) && visibleNodes.some(node => node.id === link.target.id));
-        visibleNodes.sort((a, b) => (a.size * nodeSizeFactor) - (b.size * nodeSizeFactor));
-    
+        visibleNodes.sort((a, b) => (b.size * nodeSizeFactor) - (a.size * nodeSizeFactor)); // Descending order
+
         const link = g.append('g')
             .attr('class', 'links')
             .selectAll('line')
@@ -205,13 +211,13 @@ document.addEventListener('DOMContentLoaded', function() {
             .enter().append('line')
             .attr('stroke-width', d => d.weight)
             .attr('stroke', '#999');
-    
+
         const node = g.append('g')
             .attr('class', 'nodes')
             .selectAll('circle')
             .data(visibleNodes)
             .enter().append('circle')
-            .attr('r', d => d.size * nodeSizeFactor)
+            .attr('r', d => d.size * nodeSizeFactor) // Set the size immediately
             .attr('fill', d => color(d.id))
             .call(d3.drag()
                 .on('start', dragstarted)
@@ -226,13 +232,22 @@ document.addEventListener('DOMContentLoaded', function() {
             .on('click', function(event, d) {
                 openNodeDetails(d);
             });
-    
+
         node.append('title')
             .text(d => `Group: ${d.id}\nNumbers: ${d.numbers.join(', ')}`);
-    
+
         node.attr('stroke', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 'black' : 'none')
             .attr('stroke-width', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 3 : 0);
-    
+
+        // Apply transitions only when requested
+        if (useTransitions) {
+            node.transition()
+                .duration(500) // Duration in milliseconds
+                .attr('r', d => d.size * nodeSizeFactor); // Grow to target size
+        } else {
+            node.attr('r', d => d.size * nodeSizeFactor); // Set size immediately
+        }
+
         // Apply the graph size factor only for the force layout
         if (layout === 'force') {
             g.attr('transform', `translate(${centerX}, ${centerY}) scale(${graphSizeFactor}) translate(${-centerX}, ${-centerY})`);
@@ -245,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .attr('y1', d => d.source.y)
             .attr('x2', d => d.target.x)
             .attr('y2', d => d.target.y);
-    
+
         node.attr('cx', d => d.x)
             .attr('cy', d => d.y);
     }
@@ -259,9 +274,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Prepare Venn diagram data
         const sets = [];
         const overlaps = [];
-       /* console.log('Graph Data:', graphData); // Debug statement to print the data in the browser console*/
+        /* console.log('Graph Data:', graphData); // Debug statement to print the data in the browser console*/
         console.log('Venn Data:', vennData); // Debug statement to print the Venn data in the browser console
-        
+
         // Create sets based on node groups
         graphData.nodes.forEach((node, index) => {
             sets.push({ sets: [node.id], size: node.numbers.length, label: `Group ${node.id}` });
@@ -439,7 +454,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .attr("width", gridSize)
             .attr("height", gridSize)
             .attr("fill", colors[0]);
-        
+
         cards.transition().duration(1000)
             .attr("fill", d => colorScale(d.value));
 

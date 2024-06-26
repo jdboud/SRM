@@ -8,7 +8,7 @@ app = Flask(__name__, static_url_path='', static_folder='static')
 @app.route('/data')
 def get_data():
     # Load the Excel file
-    file_path = '/data/binaryCleanUserNumberCollections1Test024.xlsx'
+    file_path = '/Users/J-D/Documents/ART/INPROGRESS/024artolog/NBCCPracticum024/repositorySRMhtml5JDB024/SRM/data/binaryCleanUserNumberCollections2Test024.xlsx'
     df = pd.read_excel(file_path, index_col=0)
 
     # Create user collections from data
@@ -29,7 +29,7 @@ def get_data():
     # Create the graph
     G = nx.Graph()
     min_size = 10  # Base node size
-    scale_factor = 20  # Scale factor for node size
+    scale_factor = 1  # Scale factor for node size
 
     group_to_node = {}
     for group_id, (indices, users) in enumerate(common_groups.items(), 1):
@@ -67,3 +67,5 @@ def serve_static(path):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
