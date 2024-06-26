@@ -2,6 +2,7 @@ from flask import Flask, jsonify, send_from_directory
 import pandas as pd
 import networkx as nx
 from itertools import combinations
+import os
 
 app = Flask(__name__, static_url_path='', static_folder='static')
 
@@ -9,7 +10,7 @@ app = Flask(__name__, static_url_path='', static_folder='static')
 def get_data():
     try:
         # Load the Excel file
-        file_path = 'data/binaryCleanUserNumberCollections1Test024.xlsx'
+        file_path = os.path.join('data', 'binaryCleanUserNumberCollections1Test024.xlsx')
         df = pd.read_excel(file_path, index_col=0)
         print("Excel file loaded successfully")
     except Exception as e:
@@ -66,8 +67,9 @@ def get_data():
 def serve_index():
     return send_from_directory('', 'index.html')
 
-@app.route('/<path:path>')
+@app.route('/static/<path:path>')
 def serve_static(path):
+    print(f"Serving static file: {path}")
     return send_from_directory(app.static_folder, path)
 
 if __name__ == '__main__':
