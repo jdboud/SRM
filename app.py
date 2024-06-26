@@ -8,8 +8,8 @@ app = Flask(__name__, static_url_path='', static_folder='static')
 @app.route('/data')
 def get_data():
     # Load the Excel file
-    file_path = 'data/binaryCleanUserNumberCollections1Test024.json'
-    df = pd.read_excel(file_path, index_col=0)
+    file_path = 'data/binaryCleanUserNumberCollections1Test024.xlsx'
+   df = pd.read_excel(file_path, index_col=0)
 
     # Create user collections from data
     user_collections = {user: set(df.index[df[user] == 1]) for user in df.columns}
@@ -59,13 +59,12 @@ def get_data():
 
 @app.route('/')
 def serve_index():
-    return send_from_directory('index.html')
+    return send_from_directory('', 'index.html')
 
 @app.route('/<path:path>')
 def serve_static(path):
-    return send_from_directory('static', path)
+    return send_from_directory(app.static_folder, path)
 
 if __name__ == '__main__':
     app.run(debug=True)
-
 
