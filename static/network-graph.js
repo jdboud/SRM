@@ -73,19 +73,94 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function fetchData() {
-        fetch('data/binaryCleanUserNumberCollections1Test024.xlsx')
+        fetch('data/binaryCleanUserNumberCollections1Test024.xlsx')  // Adjust this path according to your repository structure
             .then(response => response.arrayBuffer())
             .then(data => {
                 const workbook = XLSX.read(data, { type: 'array' });
                 const sheetName = workbook.SheetNames[0];
                 const sheet = workbook.Sheets[sheetName];
                 const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
+    
                 console.log('Fetched JSON:', json);  // Debugging statement to print the fetched JSON
                 processData(json);
             })
             .catch(error => console.error('Error fetching data:', error)); // Handle fetch errors
     }
+
+ function processData(json) {
+    // Convert the JSON data into the graph data format
+    const df = json.slice(1).map(row => {
+        const obj = {};
+        json[0].forEach((key, index) => {
+            obj[key] = row[index];
+        });
+        return obj;
+    });
+
+    console.log('Processed DataFrame:', df);  // Debugging statement to print the processed DataFrame
+
+    const userCollections = {};
+    df.forEach(row => {
+        Object.keys(row).forEach(user => {
+            if (!userCollections[user]) userCollections[user] = new Set();
+            if (row[user] === 1) userCollections[user].add(row[0]);
+        });
+    });
+
+    const commonGroups = {};
+    Object.entries(userCollections).forEach(([user1, indices1]) => {
+        Object.entries(userCollections).forEach(([user2, indices2]) => {
+            if (user1 !== user2) {
+                const commonIndices = new Set([...indices1].filter(x => indices2.has(x)));
+                if (commonIndices.size >= 2) {
+                    const sortedCommon = [...commonIndices].sort().join(',');
+                    if (!commonGroups[sortedCommon]) commonGroups[sortedCommon] = new Set();
+                    commonGroups[sortedCommon].add(user1);
+                    commonGroups[sortedCommon].add(user2);
+                }
+            }
+        });
+    });
+
+    console.log('Common Groups:', commonGroups);  // Debugging statement to print common groups
+
+    const G = new Map();
+    const minSize = 10;
+    const scaleFactor = 1;
+
+    Object.entries(commonGroups).forEach(([indices, users], groupId) => {
+        const groupName = `Group ${groupId + 1}`;
+        const numElements = indices.split(',').length;
+        const nodeSize = minSize + scaleFactor * (numElements - 2);
+        G.set(groupName, { numbers: indices.split(','), size: nodeSize, users: Array.from(users) });
+    });
+
+    console.log('Graph Structure:', G);  // Debugging statement to print the graph structure
+
+    const nodes = [];
+    const links = [];
+
+    G.forEach((data, group) => {
+        nodes.push({ id: group, size: data.size, numbers: data.numbers });
+        data.users.forEach(user1 => {
+            data.users.forEach(user2 => {
+                if (user1 !== user2) {
+                    const link = links.find(l => (l.source === user1 && l.target === user2) || (l.source === user2 && l.target === user1));
+                    if (link) {
+                        link.weight += 1;
+                    } else {
+                        links.push({ source: user1, target: user2, weight: 1 });
+                    }
+                }
+            });
+        });
+    });
+
+    graphData = { nodes, links };
+    console.log('Final Graph Data:', graphData);  // Debugging statement to print the final graph data
+    updateGraph(false); // Pass false to not use transitions initially
+    updateGrid();
+}
 
     function zoomed(event) {
         g.attr('transform', event.transform);
@@ -222,7 +297,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .text(d => `Group: ${d.id}\nNumbers: ${d.numbers.join(', ')}`);
 
         node.attr('stroke', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 'black' : 'none')
-            .attr('stroke-width', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 3 : 0);
+            .attr('stroke-width', d => selectedNumbers.size > 0 && d.numbers.some(num == selectedNumbers.has(num)) ? 3 : 0);
 
         // Apply transitions only when requested
         if (useTransitions) {
@@ -259,6 +334,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Prepare Venn diagram data
         const sets = [];
         const overlaps = [];
+        /* console.log('Graph Data:', graphData); // Debug statement to print the data in the browser console*/
+        console.log('Venn Data:', vennData); // Debug statement to print the Venn data in the browser console
 
         // Create sets based on node groups
         graphData.nodes.forEach((node, index) => {
