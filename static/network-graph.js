@@ -362,9 +362,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 numbersInGroups.set(number, color(node.id));
             });
         });
-
+    
+        console.log('Graph Data:', graphData);
+        console.log('Numbers in Groups:', numbersInGroups);
+    
         numberGrid.selectAll('.number-box').remove();
-
+    
         const numberBox = numberGrid.selectAll('.number-box')
             .data([...allNumbers, 'X']) // Add 'X' for reset button
             .enter().append('div')
@@ -372,17 +375,19 @@ document.addEventListener('DOMContentLoaded', function() {
             .style('fill', d => d === 'X' ? '#f4ce65' : '#39ea7d') // Orange fill for 'X', light gray for others
             .style('background-color', d => d === 'X' ? '#ffffff' : (numbersInGroups.has(d) ? '#e0e0e0' : '#ffffff')) // Grey selectable numbers
             .style('border', d => d === 'X' ? '4px solid #f4ce65' : '1px solid #e0e0e0') // Orange border for 'X', light gray for others
-
             .text(d => d)
             .on('click', function(event, d) {
+                console.log('Clicked:', d);
                 if (d === 'X') {
                     resetSelection();
                 } else if (numbersInGroups.has(d)) {
                     toggleNumberSelection(d);
                 }
             });
+    
+        console.log('Number Boxes:', numberBox);
     }
-
+    
     function highlightAssociatedNumbers(numbers) {
         const associatedNumbers = new Set(numbers);
         graphData.nodes.forEach(node => {
@@ -392,13 +397,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         });
-
+    
+        console.log('Highlight Associated Numbers:', numbers, associatedNumbers);
+    
         numberGrid.selectAll('.number-box')
             .style('background-color', d => {
                 if (d === 'X') return '#ffffff';
                 return associatedNumbers.has(d) ? color(graphData.nodes.find(node => node.numbers.includes(d)).id) : (graphData.nodes.some(node => node.numbers.includes(d)) ? '#e0e0e0' : '#ffffff');
             });
     }
+    
 
     function resetSelection() {
         selectedNumbers.clear();
