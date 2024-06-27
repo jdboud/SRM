@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function fetchData() {
-        fetch('https://jdboud.github.io/SRM/data/binaryCleanUserNumberCollections1Test024.xlsx')
+        fetch('/data')
             .then(response => response.json())
             .then(data => {
                 graphData = data;
@@ -337,8 +337,8 @@ document.addEventListener('DOMContentLoaded', function() {
             .data([...allNumbers, 'X']) // Add 'X' for reset button
             .enter().append('div')
             .attr('class', 'number-box')
-            .style('background-color', d => d === 'X' ? '#ffffff' : (numbersInGroups.has(d) ? '#e0e0e0' : '#ffffff')) // Grey selectable numbers
-            .style('border', d => d === 'X' ? '4px solid #f4ce65' : '1px solid #e0e0e0') // Orange border for 'X', light gray for others
+            .style('background-color', d => d === 'X' ? '#f4ce65' : (numbersInGroups.has(d) ? '#e0e0e0' : '#ffffff')) // Orange fill for 'X', light gray for others
+            .style('border', d => d === 'X' ? '0px solid #f4ce65' : '0px solid #e0e0e0') // Orange border for 'X', light gray for others
             .text(d => d)
             .on('click', function(event, d) {
                 if (d === 'X') {
@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         numberGrid.selectAll('.number-box')
             .style('background-color', d => {
-                if (d === 'X') return '#ffffff';
+                if (d === 'X') return '#f4ce65';
                 const node = graphData.nodes.find(node => node.numbers.includes(d));
                 if (associatedNumbers.has(d)) {
                     console.log('Highlighting Number:', d, 'with color:', color(node.id));
@@ -382,7 +382,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function resetSelection() {
         selectedNumbers.clear();
         numberGrid.selectAll('.number-box')
-            .style('background-color', d => d === 'X' ? '#ffffff' : (graphData.nodes.some(node => node.numbers.includes(d)) ? '#e0e0e0' : '#ffffff'));
+            .style('background-color', d => d === 'X' ? '#f4ce65' : (graphData.nodes.some(node => node.numbers.includes(d)) ? '#e0e0e0' : '#ffffff'));
         updateGraph();
     }
 
