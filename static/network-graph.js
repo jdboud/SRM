@@ -86,16 +86,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 const sheetName = workbook.SheetNames[0];
                 const sheet = workbook.Sheets[sheetName];
                 const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-    
-                console.log('Fetched Data:', json); // Add this line for debugging
-    
+
+                console.log('Fetched Data:', json);
+
                 graphData = processData(json);
                 updateGraph(false);
                 updateGrid();
             })
             .catch(error => console.error('Error fetching data:', error));
     }
-    
+
     function processData(data) {
         const df = data.slice(1); // Remove header row
         const headers = data[0].slice(1); // Remove index column
@@ -386,7 +386,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         });
-    
+
         numberGrid.selectAll('.number-box')
             .style('background-color', d => {
                 if (d === 'X') return '#ffffff';
