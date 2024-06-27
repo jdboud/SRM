@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function fetchData() {
-        fetch('/data')
+        fetch('https://jdboud.github.io/SRM/data/binaryCleanUserNumberCollections1Test024.xlsx')
             .then(response => response.json())
             .then(data => {
                 graphData = data;
@@ -373,7 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .style('border', d => {
                 if (associatedNumbers.has(d)) {
                     console.log('Setting Border for Number:', d);
-                    return '2px solid black';
+                    return '0px solid black';
                 }
                 return graphData.nodes.some(node => node.numbers.includes(d)) ? '1px solid #e0e0e0' : 'none';
             });
