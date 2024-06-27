@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const layoutDropdown = document.getElementById('layout-dropdown');
     const numbersRangeSlider = document.getElementById('numbers-range-slider');
-    const nodeSizeSlider = document.getElementById('node-size-slider');
-    const graphSizeSlider = document.getElementById('graph-size-slider');
+    const nodeSizeSlider = document.getElementById('node-size-slider'); // Node size slider element
+    const graphSizeSlider = document.getElementById('graph-size-slider'); // New slider element
     const nodeSizeFactorInput = document.getElementById('node-size-factor');
     const edgeLengthFactorInput = document.getElementById('edge-length-factor');
     const numberGrid = d3.select('#number-grid');
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    noUiSlider.create(nodeSizeSlider, {
+    noUiSlider.create(nodeSizeSlider, { // Initialize the node size slider
         start: [4],
         range: {
             'min': 0.1,
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
         step: 0.1
     });
 
-    noUiSlider.create(graphSizeSlider, {
+    noUiSlider.create(graphSizeSlider, { // Initialize the graph size slider
         start: [1],
         range: {
             'min': 0.6,
@@ -73,28 +73,83 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function fetchData() {
-        fetch('/data')
-            .then(response => response.json())
+        const dataUrl = 'https://jdboud.github.io/SRM/data/binaryCleanUserNumberCollections1Test024.xlsx';
+        fetch(dataUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.arrayBuffer();
+            })
             .then(data => {
-                graphData = data;
-                const numNodes = graphData.nodes.length;
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const sheet = workbook.Sheets[sheetName];
+                const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-                nodeSizeFactor = Math.max(0.1, Math.min(10, 12 / Math.sqrt(numNodes)));
-                nodeSizeFactorInput.value = nodeSizeFactor;
-                nodeSizeSlider.noUiSlider.set(nodeSizeFactor);
-
-                numbersRangeSlider.noUiSlider.updateOptions({
-                    range: {
-                        'min': 0,
-                        'max': maxIndices
-                    }
-                });
-                numbersRangeSlider.noUiSlider.set([0, maxIndices]);
-
+                graphData = processData(json);
                 updateGraph(false);
                 updateGrid();
             })
             .catch(error => console.error('Error fetching data:', error));
+    }
+
+    function processData(data) {
+        const df = data.slice(1); // Remove header row
+        const headers = data[0].slice(1); // Remove index column
+        const user_collections = {};
+        const common_groups = {};
+
+        headers.forEach((user, colIndex) => {
+            user_collections[user] = new Set();
+            df.forEach((row, rowIndex) => {
+                if (row[colIndex + 1] === 1) {
+                    user_collections[user].add(rowIndex + 1);
+                }
+            });
+        });
+
+        for (let user1 in user_collections) {
+            for (let user2 in user_collections) {
+                if (user1 !== user2) {
+                    const common_indices = [...user_collections[user1]].filter(x => user_collections[user2].has(x));
+                    if (common_indices.length >= 2) {
+                        const sorted_common = common_indices.sort().join(',');
+                        if (!common_groups[sorted_common]) {
+                            common_groups[sorted_common] = new Set();
+                        }
+                        common_groups[sorted_common].add(user1);
+                        common_groups[sorted_common].add(user2);
+                    }
+                }
+            }
+        }
+
+        const G = { nodes: [], links: [] };
+        let group_id = 1;
+        for (let indices in common_groups) {
+            const group_name = `Group ${group_id}`;
+            const num_elements = indices.split(',').length;
+            const node_size = 10 + num_elements - 2;
+            G.nodes.push({ id: group_name, numbers: indices.split(','), size: node_size });
+            group_id++;
+        }
+
+        const node_map = {};
+        G.nodes.forEach(node => node_map[node.id] = node);
+
+        G.nodes.forEach(node1 => {
+            G.nodes.forEach(node2 => {
+                if (node1 !== node2) {
+                    const shared_numbers = node1.numbers.filter(value => node2.numbers.includes(value));
+                    if (shared_numbers.length > 0) {
+                        G.links.push({ source: node1.id, target: node2.id, weight: shared_numbers.length });
+                    }
+                }
+            });
+        });
+
+        return G;
     }
 
     function zoomed(event) {
@@ -212,7 +267,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .selectAll('circle')
             .data(visibleNodes)
             .enter().append('circle')
-            .attr('r', d => d.size * nodeSizeFactor)
+            .attr('r', d => d.size * nodeSizeFactor) // Set the size immediately
             .attr('fill', d => color(d.id))
             .call(d3.drag()
                 .on('start', dragstarted)
@@ -234,20 +289,23 @@ document.addEventListener('DOMContentLoaded', function() {
         node.attr('stroke', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 'black' : 'none')
             .attr('stroke-width', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 3 : 0);
 
+        // Apply transitions only when requested
         if (useTransitions) {
             node.transition()
-                .duration(500)
-                .attr('r', d => d.size * nodeSizeFactor);
+                .duration(500) // Duration in milliseconds
+                .attr('r', d => d.size * nodeSizeFactor); // Grow to target size
         } else {
-            node.attr('r', d => d.size * nodeSizeFactor);
+            node.attr('r', d => d.size * nodeSizeFactor); // Set size immediately
         }
 
+        // Apply the graph size factor only for the force layout
         if (layout === 'force') {
             g.attr('transform', `translate(${centerX}, ${centerY}) scale(${graphSizeFactor}) translate(${-centerX}, ${-centerY})`);
         } else {
             g.attr('transform', null);
         }
 
+        // Update node and link positions for non-force layouts
         link.attr('x1', d => d.source.x)
             .attr('y1', d => d.source.y)
             .attr('x2', d => d.target.x)
@@ -263,6 +321,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const width = svg.node().getBoundingClientRect().width;
         const height = svg.node().getBoundingClientRect().height;
 
+        // Prepare Venn diagram data
         const sets = [];
         const overlaps = [];
 
@@ -276,16 +335,19 @@ document.addEventListener('DOMContentLoaded', function() {
             overlaps.push({ sets: [graphData.nodes[sourceIndex].id, graphData.nodes[targetIndex].id], size: link.weight });
         });
 
+        // Combine sets and overlaps
         const vennData = { sets, overlaps };
 
         const chart = venn.VennDiagram().width(width).height(height);
         d3.select("#network-graph svg").datum(vennData).call(chart);
 
+        // Style the circles
         d3.selectAll(".venn-circle path")
             .style("fill-opacity", 0.5)
             .style("stroke", "#fff")
             .style("stroke-width", 2);
 
+        // Add labels
         d3.selectAll(".venn-circle text")
             .style("fill", "#000")
             .style("font-size", "12px")
@@ -304,11 +366,11 @@ document.addEventListener('DOMContentLoaded', function() {
         numberGrid.selectAll('.number-box').remove();
 
         const numberBox = numberGrid.selectAll('.number-box')
-            .data([...allNumbers, 'X'])
+            .data([...allNumbers, 'X']) // Add 'X' for reset button
             .enter().append('div')
             .attr('class', 'number-box')
-            .style('background-color', d => d === 'X' ? '#ffffff' : (numbersInGroups.has(d) ? '#e0e0e0' : '#ffffff'))
-            .style('border', d => d === 'X' ? '4px solid #f4ce65' : '1px solid #e0e0e0')
+            .style('background-color', d => d === 'X' ? '#ffffff' : (numbersInGroups.has(d) ? '#e0e0e0' : '#ffffff')) // Grey selectable numbers
+            .style('border', d => d === 'X' ? '4px solid #f4ce65' : '1px solid #e0e0e0') // Orange border for 'X', light gray for others
             .text(d => d)
             .on('click', function(event, d) {
                 if (d === 'X') {
@@ -377,7 +439,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const gridSize = Math.floor(width / 24);
         const legendElementWidth = gridSize * 2;
         const buckets = 9;
-        const colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"];
+        const colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"]; // alternatively colorbrewer.YlGnBu[9]
         const users = d3.range(1, 101);
         const numbers = d3.range(1, 101);
 
@@ -463,8 +525,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function openNodeDetails(d) {
+        // You can customize this function to display the node details in a modal or any other way you prefer.
+        // For now, it will just log the details to the console.
         console.log("Node details:", d);
     }
 
-    fetchData();
+    fetchData(); // Fetch initial data when the page loads
 });

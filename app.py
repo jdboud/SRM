@@ -2,15 +2,20 @@ from flask import Flask, jsonify, send_from_directory
 import pandas as pd
 import networkx as nx
 from itertools import combinations
+import os
 
 app = Flask(__name__, static_url_path='', static_folder='static')
 
 @app.route('/data')
 def get_data():
-    file_path = 'path_to_your_excel_file.xlsx'  # Update with the correct path
+    # Load the Excel file
+    file_path = os.path.join(app.root_path, 'data', 'binaryCleanUserNumberCollections1Test024.xlsx')
     df = pd.read_excel(file_path, index_col=0)
 
+    # Create user collections from data
     user_collections = {user: set(df.index[df[user] == 1]) for user in df.columns}
+
+    # Create common groups
     common_groups = {}
     for user1, indices1 in user_collections.items():
         for user2, indices2 in user_collections.items():
@@ -22,9 +27,10 @@ def get_data():
                         common_groups[sorted_common] = set()
                     common_groups[sorted_common].update([user1, user2])
 
+    # Create the graph
     G = nx.Graph()
-    min_size = 10
-    scale_factor = 1
+    min_size = 10  # Base node size
+    scale_factor = 1  # Scale factor for node size
 
     group_to_node = {}
     for group_id, (indices, users) in enumerate(common_groups.items(), 1):
@@ -34,12 +40,14 @@ def get_data():
         G.add_node(group_name, numbers=indices, size=node_size)
         group_to_node[group_name] = group_id
 
+    # Add edges based on shared numbers with weights
     for (group1, data1), (group2, data2) in combinations(G.nodes(data=True), 2):
         shared_numbers = set(data1['numbers']).intersection(data2['numbers'])
         if shared_numbers:
             weight = len(shared_numbers)
             G.add_edge(group1, group2, weight=weight)
 
+    # Prepare nodes and links for D3.js
     nodes = [{"id": group, "size": data["size"], "numbers": list(data["numbers"])} for group, data in G.nodes(data=True)]
     links = [{"source": group1, "target": group2, "weight": G.edges[group1, group2]["weight"]} for group1, group2 in G.edges()]
 
