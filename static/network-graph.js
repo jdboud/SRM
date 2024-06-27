@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const layoutDropdown = document.getElementById('layout-dropdown');
     const numbersRangeSlider = document.getElementById('numbers-range-slider');
-    const nodeSizeSlider = document.getElementById('node-size-slider'); // Node size slider element
-    const graphSizeSlider = document.getElementById('graph-size-slider'); // New slider element
+    const nodeSizeSlider = document.getElementById('node-size-slider');
+    const graphSizeSlider = document.getElementById('graph-size-slider');
     const nodeSizeFactorInput = document.getElementById('node-size-factor');
     const edgeLengthFactorInput = document.getElementById('edge-length-factor');
     const numberGrid = d3.select('#number-grid');
@@ -29,8 +29,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let graphData = { nodes: [], links: [] };
     let selectedNumbers = new Set();
     let maxIndices = 100;
-    let nodeSizeFactor = 1; // Initial node size factor
-    let graphSizeFactor = 1; // Initial graph size factor
+    let nodeSizeFactor = 1;
+    let graphSizeFactor = 1;
 
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    noUiSlider.create(nodeSizeSlider, { // Initialize the node size slider
+    noUiSlider.create(nodeSizeSlider, {
         start: [4],
         range: {
             'min': 0.1,
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
         step: 0.1
     });
 
-    noUiSlider.create(graphSizeSlider, { // Initialize the graph size slider
+    noUiSlider.create(graphSizeSlider, {
         start: [1],
         range: {
             'min': 0.6,
@@ -64,12 +64,12 @@ document.addEventListener('DOMContentLoaded', function() {
     numbersRangeSlider.noUiSlider.on('update', updateGraph);
     nodeSizeSlider.noUiSlider.on('update', function(values, handle) {
         nodeSizeFactor = values[handle];
-        updateGraph(true); // Pass true to use transitions
+        updateGraph(true);
     });
 
     graphSizeSlider.noUiSlider.on('update', function(values, handle) {
         graphSizeFactor = values[handle];
-        updateGraph(true); // Pass true to use transitions
+        updateGraph(true);
     });
 
     function fetchData() {
@@ -86,14 +86,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 const sheetName = workbook.SheetNames[0];
                 const sheet = workbook.Sheets[sheetName];
                 const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
+    
+                console.log('Fetched Data:', json); // Add this line for debugging
+    
                 graphData = processData(json);
                 updateGraph(false);
                 updateGrid();
             })
             .catch(error => console.error('Error fetching data:', error));
     }
-
+    
     function processData(data) {
         const df = data.slice(1); // Remove header row
         const headers = data[0].slice(1); // Remove index column
@@ -245,11 +247,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         .attr('cy', d => d.y);
                 });
 
-            // Update the forces
             simulation.force('link').links(graphData.links);
         }
 
-        // Sort nodes by size in descending order to ensure smaller nodes are drawn last (on top)
         const visibleNodes = graphData.nodes.filter(node => (node.numbers.length >= minIndices && node.numbers.length <= maxIndices) && (selectedNumbers.size === 0 || node.numbers.some(num => selectedNumbers.has(num))));
         const visibleLinks = graphData.links.filter(link => visibleNodes.some(node => node.id === link.source.id) && visibleNodes.some(node => node.id === link.target.id));
         visibleNodes.sort((a, b) => (b.size * nodeSizeFactor) - (a.size * nodeSizeFactor)); // Descending order
@@ -262,27 +262,28 @@ document.addEventListener('DOMContentLoaded', function() {
             .attr('stroke-width', d => d.weight)
             .attr('stroke', '#999');
 
-        const node = g.append('g')
+            const node = g.append('g')
             .attr('class', 'nodes')
             .selectAll('circle')
             .data(visibleNodes)
             .enter().append('circle')
-            .attr('r', d => d.size * nodeSizeFactor) // Set the size immediately
+            .attr('r', d => d.size * nodeSizeFactor)
             .attr('fill', d => color(d.id))
             .call(d3.drag()
                 .on('start', dragstarted)
                 .on('drag', dragged)
                 .on('end', dragended))
             .on('mouseover', function(event, d) {
-                console.log('Mouseover Node:', d);
+                console.log('Mouseover Node:', d); // Debugging statement
                 highlightAssociatedNumbers(d.numbers);
             })
             .on('mouseout', function(event, d) {
+                console.log('Mouseout Node:', d); // Debugging statement
                 highlightAssociatedNumbers(Array.from(selectedNumbers));
             })
             .on('click', function(event, d) {
                 toggleNodeSelection(d);
-            });
+            });        
 
         node.append('title')
             .text(d => `Group: ${d.id}\nNumbers: ${d.numbers.join(', ')}`);
@@ -290,23 +291,20 @@ document.addEventListener('DOMContentLoaded', function() {
         node.attr('stroke', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 'black' : 'none')
             .attr('stroke-width', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 3 : 0);
 
-        // Apply transitions only when requested
         if (useTransitions) {
             node.transition()
-                .duration(500) // Duration in milliseconds
-                .attr('r', d => d.size * nodeSizeFactor); // Grow to target size
+                .duration(500)
+                .attr('r', d => d.size * nodeSizeFactor);
         } else {
-            node.attr('r', d => d.size * nodeSizeFactor); // Set size immediately
+            node.attr('r', d => d.size * nodeSizeFactor);
         }
 
-        // Apply the graph size factor only for the force layout
         if (layout === 'force') {
             g.attr('transform', `translate(${centerX}, ${centerY}) scale(${graphSizeFactor}) translate(${-centerX}, ${-centerY})`);
         } else {
             g.attr('transform', null);
         }
 
-        // Update node and link positions for non-force layouts
         link.attr('x1', d => d.source.x)
             .attr('y1', d => d.source.y)
             .attr('x2', d => d.target.x)
@@ -316,56 +314,35 @@ document.addEventListener('DOMContentLoaded', function() {
             .attr('cy', d => d.y);
     }
 
-    function toggleNodeSelection(node) {
-        if (selectedNumbers.has(node)) {
-            selectedNumbers.delete(node);
-        } else {
-            selectedNumbers.add(node);
-        }
-        highlightAssociatedNumbers(Array.from(selectedNumbers));
-        updateGraph();
-    }
-
     function updateVennDiagram() {
         d3.select("#network-graph svg").selectAll("*").remove();
 
         const width = svg.node().getBoundingClientRect().width;
         const height = svg.node().getBoundingClientRect().height;
 
-        // Prepare Venn diagram data
         const sets = [];
         const overlaps = [];
-        console.log('Graph Data:', graphData);
 
-        // Create sets based on node groups
         graphData.nodes.forEach((node, index) => {
             sets.push({ sets: [node.id], size: node.numbers.length, label: `Group ${node.id}` });
         });
 
-        // Create overlaps based on links between nodes
         graphData.links.forEach(link => {
             const sourceIndex = graphData.nodes.findIndex(node => node.id === link.source.id);
             const targetIndex = graphData.nodes.findIndex(node => node.id === link.target.id);
             overlaps.push({ sets: [graphData.nodes[sourceIndex].id, graphData.nodes[targetIndex].id], size: link.weight });
         });
 
-        // Combine sets and overlaps
         const vennData = { sets, overlaps };
 
-        // Debugging statements to check data
-        console.log('Venn Data:', vennData);
-
-        // Render Venn diagram
         const chart = venn.VennDiagram().width(width).height(height);
         d3.select("#network-graph svg").datum(vennData).call(chart);
 
-        // Style the circles
         d3.selectAll(".venn-circle path")
             .style("fill-opacity", 0.5)
             .style("stroke", "#fff")
             .style("stroke-width", 2);
 
-        // Add labels
         d3.selectAll(".venn-circle text")
             .style("fill", "#000")
             .style("font-size", "12px")
@@ -384,10 +361,10 @@ document.addEventListener('DOMContentLoaded', function() {
         numberGrid.selectAll('.number-box').remove();
 
         const numberBox = numberGrid.selectAll('.number-box')
-            .data([...allNumbers, 'X']) // Add 'X' for reset button
+            .data([...allNumbers, 'X'])
             .enter().append('div')
             .attr('class', 'number-box')
-            .style('background-color', d => d === 'X' ? '#ffffff' : (numbersInGroups.has(d) ? color(graphData.nodes.find(node => node.numbers.includes(d)).id) : '#ffffff'))
+            .style('background-color', d => d === 'X' ? '#ffffff' : (numbersInGroups.has(d) ? '#e0e0e0' : '#ffffff'))
             .style('border', d => d === 'X' ? '4px solid #f4ce65' : '1px solid #e0e0e0')
             .text(d => d)
             .on('click', function(event, d) {
@@ -397,11 +374,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     toggleNumberSelection(d);
                 }
             });
-
-        numberBox.filter(d => d === 'X')
-            .classed('reset', true);
     }
-
     function highlightAssociatedNumbers(numbers) {
         console.log('Highlight Numbers:', numbers);
         const associatedNumbers = new Set(numbers);
@@ -412,7 +385,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         });
-
+    
         numberGrid.selectAll('.number-box')
             .style('background-color', d => {
                 if (d === 'X') return '#ffffff';
@@ -431,12 +404,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 return graphData.nodes.some(node => node.numbers.includes(d)) ? '1px solid #e0e0e0' : 'none';
             });
     }
+    
 
     function resetSelection() {
         selectedNumbers.clear();
         numberGrid.selectAll('.number-box')
-            .style('background-color', d => d === 'X' ? '#ffffff' : (graphData.nodes.some(node => node.numbers.includes(d)) ? '#e0e0e0' : '#ffffff'))
-            .style('border', d => d === 'X' ? '4px solid #f4ce65' : '1px solid #e0e0e0');
+            .style('background-color', d => d === 'X' ? '#ffffff' : (graphData.nodes.some(node => node.numbers.includes(d)) ? '#e0e0e0' : '#ffffff'));
         updateGraph();
     }
 
@@ -559,5 +532,9 @@ document.addEventListener('DOMContentLoaded', function() {
         legend.exit().remove();
     }
 
-    fetchData(); // Fetch initial data when the page loads
+    function openNodeDetails(d) {
+        console.log("Node details:", d);
+    }
+
+    fetchData();
 });
