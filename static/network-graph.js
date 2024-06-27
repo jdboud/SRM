@@ -86,14 +86,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 const sheetName = workbook.SheetNames[0];
                 const sheet = workbook.Sheets[sheetName];
                 const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
+    
+                console.log('Fetched Data:', json); // Add this line for debugging
+    
                 graphData = processData(json);
                 updateGraph(false);
                 updateGrid();
             })
             .catch(error => console.error('Error fetching data:', error));
     }
-
+    
     function processData(data) {
         const df = data.slice(1); // Remove header row
         const headers = data[0].slice(1); // Remove index column
@@ -260,7 +262,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .attr('stroke-width', d => d.weight)
             .attr('stroke', '#999');
 
-        const node = g.append('g')
+            const node = g.append('g')
             .attr('class', 'nodes')
             .selectAll('circle')
             .data(visibleNodes)
@@ -272,14 +274,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 .on('drag', dragged)
                 .on('end', dragended))
             .on('mouseover', function(event, d) {
+                console.log('Mouseover Node:', d); // Debugging statement
                 highlightAssociatedNumbers(d.numbers);
             })
             .on('mouseout', function(event, d) {
+                console.log('Mouseout Node:', d); // Debugging statement
                 highlightAssociatedNumbers(Array.from(selectedNumbers));
             })
             .on('click', function(event, d) {
                 toggleNodeSelection(d);
-            });
+            });        
 
         node.append('title')
             .text(d => `Group: ${d.id}\nNumbers: ${d.numbers.join(', ')}`);
@@ -371,8 +375,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
     }
-
     function highlightAssociatedNumbers(numbers) {
+        console.log('Highlight Numbers:', numbers); // Debugging statement
         const associatedNumbers = new Set(numbers);
         graphData.nodes.forEach(node => {
             if (node.numbers.some(num => selectedNumbers.has(num))) {
@@ -381,16 +385,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         });
-
+    
         numberGrid.selectAll('.number-box')
-            .style('background-color', d => {
-                if (d === 'X') return '#ffffff';
-                return associatedNumbers.has(d) ? color(graphData.nodes.find(node => node.numbers.includes(d)).id) : (graphData.nodes.some(node => node.numbers.includes(d)) ? '#e0e0e0' : '#ffffff');
-            })
-            .style('border', d => {
-                return associatedNumbers.has(d) ? '2px solid black' : (graphData.nodes.some(node => node.numbers.includes(d)) ? '1px solid #e0e0e0' : 'none');
-            });
+        .each(function(d, i) {
+            console.log('Number Box Element:', this, 'Data:', d); // Debugging statement
+        })
+        .style('background-color', d => {
+            if (d === 'X') return '#ffffff';
+            return associatedNumbers.has(d) ? color(graphData.nodes.find(node => node.numbers.includes(d)).id) : (graphData.nodes.some(node => node.numbers.includes(d)) ? '#e0e0e0' : '#ffffff');
+        })
+        .style('border', d => {
+            return associatedNumbers.has(d) ? '2px solid black' : (graphData.nodes.some(node => node.numbers.includes(d)) ? '1px solid #e0e0e0' : 'none');
+        });
+    
     }
+    
 
     function resetSelection() {
         selectedNumbers.clear();
