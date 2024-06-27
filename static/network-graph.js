@@ -362,12 +362,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 numbersInGroups.set(number, color(node.id));
             });
         });
-    
+
         console.log('Graph Data:', graphData);
         console.log('Numbers in Groups:', numbersInGroups);
-    
+
         numberGrid.selectAll('.number-box').remove();
-    
+
         const numberBox = numberGrid.selectAll('.number-box')
             .data([...allNumbers, 'X']) // Add 'X' for reset button
             .enter().append('div')
@@ -384,8 +384,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     toggleNumberSelection(d);
                 }
             });
-
-        console.log('Number Boxes:', numberBox);
     }
 
     function highlightAssociatedNumbers(numbers) {
@@ -397,8 +395,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         });
-
-        console.log('Highlight Associated Numbers:', numbers, associatedNumbers);
 
         numberGrid.selectAll('.number-box')
             .style('background-color', d => {
@@ -534,9 +530,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     fetchData(); // Fetch initial data when the page loads
-
-    // Define a placeholder function for openNodeDetails
-    function openNodeDetails(d) {
-        console.log('Node details:', d);
-    }
 });
