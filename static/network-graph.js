@@ -73,33 +73,83 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function fetchData() {
-        fetch('https://jdboud.github.io/SRM/data/binaryCleanUserNumberCollections1Test024.xlsx')
-            .then(response => response.json())
+        const dataUrl = 'https://jdboud.github.io/SRM/data/binaryCleanUserNumberCollections1Test024.xlsx';
+        fetch(dataUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.arrayBuffer();
+            })
             .then(data => {
-                graphData = data;
-                const numNodes = graphData.nodes.length;
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const sheet = workbook.Sheets[sheetName];
+                const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-                // Determine initial node size factor proportionate to the number of nodes
-                nodeSizeFactor = Math.max(0.1, Math.min(10, 12 / Math.sqrt(numNodes)));
-
-                // Set the initial value of the node size factor input
-                nodeSizeFactorInput.value = nodeSizeFactor;
-
-                // Initialize the node size slider with the determined start value
-                nodeSizeSlider.noUiSlider.set(nodeSizeFactor);
-
-                numbersRangeSlider.noUiSlider.updateOptions({
-                    range: {
-                        'min': 0,
-                        'max': maxIndices
-                    }
-                });
-                numbersRangeSlider.noUiSlider.set([0, maxIndices]); // Set the slider to its maximum range initially
-
-                updateGraph(false); // Pass false to not use transitions initially
+                graphData = processData(json);
+                updateGraph(false);
                 updateGrid();
             })
-            .catch(error => console.error('Error fetching data:', error)); // Handle fetch errors
+            .catch(error => console.error('Error fetching data:', error));
+    }
+
+    function processData(data) {
+        const df = data.slice(1); // Remove header row
+        const headers = data[0].slice(1); // Remove index column
+        const user_collections = {};
+        const common_groups = {};
+
+        headers.forEach((user, colIndex) => {
+            user_collections[user] = new Set();
+            df.forEach((row, rowIndex) => {
+                if (row[colIndex + 1] === 1) {
+                    user_collections[user].add(rowIndex + 1);
+                }
+            });
+        });
+
+        for (let user1 in user_collections) {
+            for (let user2 in user_collections) {
+                if (user1 !== user2) {
+                    const common_indices = [...user_collections[user1]].filter(x => user_collections[user2].has(x));
+                    if (common_indices.length >= 2) {
+                        const sorted_common = common_indices.sort().join(',');
+                        if (!common_groups[sorted_common]) {
+                            common_groups[sorted_common] = new Set();
+                        }
+                        common_groups[sorted_common].add(user1);
+                        common_groups[sorted_common].add(user2);
+                    }
+                }
+            }
+        }
+
+        const G = { nodes: [], links: [] };
+        let group_id = 1;
+        for (let indices in common_groups) {
+            const group_name = `Group ${group_id}`;
+            const num_elements = indices.split(',').length;
+            const node_size = 10 + num_elements - 2;
+            G.nodes.push({ id: group_name, numbers: indices.split(','), size: node_size });
+            group_id++;
+        }
+
+        const node_map = {};
+        G.nodes.forEach(node => node_map[node.id] = node);
+
+        G.nodes.forEach(node1 => {
+            G.nodes.forEach(node2 => {
+                if (node1 !== node2) {
+                    const shared_numbers = node1.numbers.filter(value => node2.numbers.includes(value));
+                    if (shared_numbers.length > 0) {
+                        G.links.push({ source: node1.id, target: node2.id, weight: shared_numbers.length });
+                    }
+                }
+            });
+        });
+
+        return G;
     }
 
     function zoomed(event) {
@@ -337,8 +387,8 @@ document.addEventListener('DOMContentLoaded', function() {
             .data([...allNumbers, 'X']) // Add 'X' for reset button
             .enter().append('div')
             .attr('class', 'number-box')
-            .style('background-color', d => d === 'X' ? '#f4ce65' : (numbersInGroups.has(d) ? '#e0e0e0' : '#ffffff')) // Orange fill for 'X', light gray for others
-            .style('border', d => d === 'X' ? '0px solid #f4ce65' : '0px solid #e0e0e0') // Orange border for 'X', light gray for others
+            .style('background-color', d => d === 'X' ? '#ffffff' : (numbersInGroups.has(d) ? color(graphData.nodes.find(node => node.numbers.includes(d)).id) : '#ffffff'))
+            .style('border', d => d === 'X' ? '4px solid #f4ce65' : '1px solid #e0e0e0')
             .text(d => d)
             .on('click', function(event, d) {
                 if (d === 'X') {
@@ -347,6 +397,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     toggleNumberSelection(d);
                 }
             });
+
+        numberBox.filter(d => d === 'X')
+            .classed('reset', true);
     }
 
     function highlightAssociatedNumbers(numbers) {
@@ -362,7 +415,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         numberGrid.selectAll('.number-box')
             .style('background-color', d => {
-                if (d === 'X') return '#f4ce65';
+                if (d === 'X') return '#ffffff';
                 const node = graphData.nodes.find(node => node.numbers.includes(d));
                 if (associatedNumbers.has(d)) {
                     console.log('Highlighting Number:', d, 'with color:', color(node.id));
@@ -373,7 +426,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .style('border', d => {
                 if (associatedNumbers.has(d)) {
                     console.log('Setting Border for Number:', d);
-                    return '0px solid black';
+                    return '2px solid black';
                 }
                 return graphData.nodes.some(node => node.numbers.includes(d)) ? '1px solid #e0e0e0' : 'none';
             });
@@ -382,7 +435,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function resetSelection() {
         selectedNumbers.clear();
         numberGrid.selectAll('.number-box')
-            .style('background-color', d => d === 'X' ? '#f4ce65' : (graphData.nodes.some(node => node.numbers.includes(d)) ? '#e0e0e0' : '#ffffff'));
+            .style('background-color', d => d === 'X' ? '#ffffff' : (graphData.nodes.some(node => node.numbers.includes(d)) ? '#e0e0e0' : '#ffffff'))
+            .style('border', d => d === 'X' ? '4px solid #f4ce65' : '1px solid #e0e0e0');
         updateGraph();
     }
 
@@ -420,7 +474,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const gridSize = Math.floor(width / 24);
         const legendElementWidth = gridSize * 2;
         const buckets = 9;
-        const colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"]; // alternatively colorbrewer.YlGnBu[9]
+        const colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"];
         const users = d3.range(1, 101);
         const numbers = d3.range(1, 101);
 
