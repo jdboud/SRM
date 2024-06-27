@@ -245,6 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         .attr('cy', d => d.y);
                 });
 
+            // Update the forces
             simulation.force('link').links(graphData.links);
         }
 
