@@ -3,7 +3,6 @@
     height: 500px;
     border: 0px solid #ccc;
     transform-origin: center center;
-    
 }
 
 .nodes circle {
@@ -17,9 +16,8 @@
 }
 
 .links line {
-    stroke: #bebebeb1;
-    stroke-opacity: 0.15;
-    stroke-width: 1%;
+    stroke: #999999b1;
+    stroke-opacity: 0;
 }
 
 .number-box {
@@ -36,12 +34,12 @@
     padding: 4px; /* Add some padding inside the boxes */
     box-sizing: border-box; /* Include padding and border in element's total width and height */
 }
+
 #number-grid {
     margin-top: 20px;
     display: flex;
     flex-wrap: wrap;
 }
-
 
 /* CSS for the dual-range slider */
 .noUi-horizontal {
@@ -55,10 +53,12 @@
     background-color: #ffffff; /* Slider track background color */
     border-radius: 0px; /* Rounded corners */
 }
+
 .noUi-handle::before,
 .noUi-handle::after {
     display: none; /* This removes the small lines */
 }
+
 .noUi-horizontal .noUi-handle {
     top: -10px; /* Adjust the vertical alignment of handles */
     width: 30px; /* Set the width of the handle */
@@ -68,25 +68,21 @@
 .noUi-handle {
     box-shadow: none; /* This removes the shadow */
     background-color: #ffffff; /* Handle color */
-    border-radius:0%;
+    border-radius: 0%;
     border: 0.5px solid #c5c5c5; /* Handle border color */
     cursor: pointer;
     width: 20px; /* Set the width of the handle */
     height: 20px; /* Set the height of the handle */
-
-    
 }
 
 .noUi-connect {
     background: #f4ce65; /* Connect bar color */
     border: none;
-
 }
 
 .noUi-target {
     background: #ffffff; /* Slider track background color */
     border: none;
-
 }
 
 #node-size-slider {
@@ -110,7 +106,7 @@
     border-radius: 0%; /* Make the handle circular */
 }
 
-#graph-size-slider{
+#graph-size-slider {
     width: 10px; /* Adjust as needed */
     height: 10px; /* Adjust as needed */
     margin-top: 15px; /* Space above the element */
@@ -126,8 +122,8 @@
 #layout-dropdown {
     width: 125px;
     height: 25px;
-    margin-top: 4px ; /* Space above the element */
-    margin-bottom: 4px ; /* Space below the element */
+    margin-top: 4px; /* Space above the element */
+    margin-bottom: 4px; /* Space below the element */
     padding: 4px; /* Space inside the element */
     font-family: Arial, sans-serif; /* Change the font */
     color: #444343; /* Change the text color */
@@ -140,14 +136,12 @@
     background-size: 12px; /* Size of the custom arrow */
 }
 
-
-
 #node-size-factor,
 #edge-length-factor {
     width: 35px;
     height: 15px;
-    margin-top: 4px ; /* Space above the element */
-    margin-bottom: 4px ; /* Space below the element */
+    margin-top: 4px; /* Space above the element */
+    margin-bottom: 4px; /* Space below the element */
     padding: 4px; /* Space inside the element */
     font-family: Arial, sans-serif; /* Change the font */
     color: #3a3939; /* Change the text color */
@@ -155,6 +149,7 @@
     border-radius: 0px; /* Rounded corners */
     border: 0px solid #b2b0b0; /* Border around the element */
 }
+
 label {
     margin-top: 4px; /* Space above the element */
     margin-bottom: 4px; /* Space below the element */
@@ -165,12 +160,6 @@ label {
     font-weight: bold; /* Make the label text bold */
 }
 
-/*#network-graph, #heatmap {
-    width: 100%;
-    height: 500px;
-    border: 0px solid #ccc;
-    margin-bottom: 20px;
-}*/
 .number-box {
     display: inline-block;
     font-size: 0px; /* Size of the text */
@@ -181,6 +170,7 @@ label {
     line-height: 30px;
     margin: 2px;
 }
+
 .slider-container {
     display: flex;
     justify-content: space-between;
@@ -198,5 +188,4 @@ label {
     width: 30%;
     margin-top: 0px;
     margin-bottom: 0px;
-
 }
