@@ -518,5 +518,9 @@ document.addEventListener('DOMContentLoaded', function() {
         legend.exit().remove();
     }
 
+    function openNodeDetails(d) {
+        console.log("Node details:", d);
+    }
+
     fetchData();
 });
