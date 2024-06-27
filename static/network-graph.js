@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const layoutDropdown = document.getElementById('layout-dropdown');
     const numbersRangeSlider = document.getElementById('numbers-range-slider');
-    const nodeSizeSlider = document.getElementById('node-size-slider'); // Node size slider element
-    const graphSizeSlider = document.getElementById('graph-size-slider'); // New slider element
+    const nodeSizeSlider = document.getElementById('node-size-slider');
+    const graphSizeSlider = document.getElementById('graph-size-slider');
     const nodeSizeFactorInput = document.getElementById('node-size-factor');
     const edgeLengthFactorInput = document.getElementById('edge-length-factor');
     const numberGrid = d3.select('#number-grid');
@@ -29,8 +29,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let graphData = { nodes: [], links: [] };
     let selectedNumbers = new Set();
     let maxIndices = 100;
-    let nodeSizeFactor = 1; // Initial node size factor
-    let graphSizeFactor = 1; // Initial graph size factor
+    let nodeSizeFactor = 1;
+    let graphSizeFactor = 1;
 
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    noUiSlider.create(nodeSizeSlider, { // Initialize the node size slider
+    noUiSlider.create(nodeSizeSlider, {
         start: [4],
         range: {
             'min': 0.1,
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
         step: 0.1
     });
 
-    noUiSlider.create(graphSizeSlider, { // Initialize the graph size slider
+    noUiSlider.create(graphSizeSlider, {
         start: [1],
         range: {
             'min': 0.6,
@@ -64,12 +64,12 @@ document.addEventListener('DOMContentLoaded', function() {
     numbersRangeSlider.noUiSlider.on('update', updateGraph);
     nodeSizeSlider.noUiSlider.on('update', function(values, handle) {
         nodeSizeFactor = values[handle];
-        updateGraph(true); // Pass true to use transitions
+        updateGraph(true);
     });
 
     graphSizeSlider.noUiSlider.on('update', function(values, handle) {
         graphSizeFactor = values[handle];
-        updateGraph(true); // Pass true to use transitions
+        updateGraph(true);
     });
 
     function fetchData() {
@@ -245,11 +245,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         .attr('cy', d => d.y);
                 });
 
-            // Update the forces
             simulation.force('link').links(graphData.links);
         }
 
-        // Sort nodes by size in descending order to ensure smaller nodes are drawn last (on top)
         const visibleNodes = graphData.nodes.filter(node => (node.numbers.length >= minIndices && node.numbers.length <= maxIndices) && (selectedNumbers.size === 0 || node.numbers.some(num => selectedNumbers.has(num))));
         const visibleLinks = graphData.links.filter(link => visibleNodes.some(node => node.id === link.source.id) && visibleNodes.some(node => node.id === link.target.id));
         visibleNodes.sort((a, b) => (b.size * nodeSizeFactor) - (a.size * nodeSizeFactor)); // Descending order
@@ -267,17 +265,17 @@ document.addEventListener('DOMContentLoaded', function() {
             .selectAll('circle')
             .data(visibleNodes)
             .enter().append('circle')
-            .attr('r', d => d.size * nodeSizeFactor) // Set the size immediately
+            .attr('r', d => d.size * nodeSizeFactor)
             .attr('fill', d => color(d.id))
             .call(d3.drag()
                 .on('start', dragstarted)
                 .on('drag', dragged)
                 .on('end', dragended))
             .on('mouseover', function(event, d) {
-                highlightAssociatedNumbers(d.numbers, color(d.id));
+                highlightAssociatedNumbers(d.numbers);
             })
             .on('mouseout', function(event, d) {
-                highlightAssociatedNumbers([]);
+                highlightAssociatedNumbers(Array.from(selectedNumbers));
             })
             .on('click', function(event, d) {
                 openNodeDetails(d);
@@ -289,23 +287,20 @@ document.addEventListener('DOMContentLoaded', function() {
         node.attr('stroke', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 'black' : 'none')
             .attr('stroke-width', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 3 : 0);
 
-        // Apply transitions only when requested
         if (useTransitions) {
             node.transition()
-                .duration(500) // Duration in milliseconds
-                .attr('r', d => d.size * nodeSizeFactor); // Grow to target size
+                .duration(500)
+                .attr('r', d => d.size * nodeSizeFactor);
         } else {
-            node.attr('r', d => d.size * nodeSizeFactor); // Set size immediately
+            node.attr('r', d => d.size * nodeSizeFactor);
         }
 
-        // Apply the graph size factor only for the force layout
         if (layout === 'force') {
             g.attr('transform', `translate(${centerX}, ${centerY}) scale(${graphSizeFactor}) translate(${-centerX}, ${-centerY})`);
         } else {
             g.attr('transform', null);
         }
 
-        // Update node and link positions for non-force layouts
         link.attr('x1', d => d.source.x)
             .attr('y1', d => d.source.y)
             .attr('x2', d => d.target.x)
@@ -321,7 +316,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const width = svg.node().getBoundingClientRect().width;
         const height = svg.node().getBoundingClientRect().height;
 
-        // Prepare Venn diagram data
         const sets = [];
         const overlaps = [];
 
@@ -335,19 +329,16 @@ document.addEventListener('DOMContentLoaded', function() {
             overlaps.push({ sets: [graphData.nodes[sourceIndex].id, graphData.nodes[targetIndex].id], size: link.weight });
         });
 
-        // Combine sets and overlaps
         const vennData = { sets, overlaps };
 
         const chart = venn.VennDiagram().width(width).height(height);
         d3.select("#network-graph svg").datum(vennData).call(chart);
 
-        // Style the circles
         d3.selectAll(".venn-circle path")
             .style("fill-opacity", 0.5)
             .style("stroke", "#fff")
             .style("stroke-width", 2);
 
-        // Add labels
         d3.selectAll(".venn-circle text")
             .style("fill", "#000")
             .style("font-size", "12px")
@@ -366,11 +357,11 @@ document.addEventListener('DOMContentLoaded', function() {
         numberGrid.selectAll('.number-box').remove();
 
         const numberBox = numberGrid.selectAll('.number-box')
-            .data([...allNumbers, 'X']) // Add 'X' for reset button
+            .data([...allNumbers, 'X'])
             .enter().append('div')
             .attr('class', 'number-box')
-            .style('background-color', d => d === 'X' ? '#ffffff' : (numbersInGroups.has(d) ? '#e0e0e0' : '#ffffff')) // Grey selectable numbers
-            .style('border', d => d === 'X' ? '4px solid #f4ce65' : '1px solid #e0e0e0') // Orange border for 'X', light gray for others
+            .style('background-color', d => d === 'X' ? '#ffffff' : (numbersInGroups.has(d) ? '#e0e0e0' : '#ffffff'))
+            .style('border', d => d === 'X' ? '4px solid #f4ce65' : '1px solid #e0e0e0')
             .text(d => d)
             .on('click', function(event, d) {
                 if (d === 'X') {
@@ -381,12 +372,20 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    function highlightAssociatedNumbers(numbers, color) {
+    function highlightAssociatedNumbers(numbers) {
+        const associatedNumbers = new Set(numbers);
+        graphData.nodes.forEach(node => {
+            if (node.numbers.some(num => selectedNumbers.has(num))) {
+                node.numbers.forEach(number => {
+                    associatedNumbers.add(number);
+                });
+            }
+        });
+
         numberGrid.selectAll('.number-box')
             .style('background-color', d => {
                 if (d === 'X') return '#ffffff';
-                if (numbers.includes(d)) return color;
-                return graphData.nodes.some(node => node.numbers.includes(d)) ? '#e0e0e0' : '#ffffff';
+                return associatedNumbers.has(d) ? color(graphData.nodes.find(node => node.numbers.includes(d)).id) : (graphData.nodes.some(node => node.numbers.includes(d)) ? '#e0e0e0' : '#ffffff');
             });
     }
 
@@ -431,7 +430,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const gridSize = Math.floor(width / 24);
         const legendElementWidth = gridSize * 2;
         const buckets = 9;
-        const colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"]; // alternatively colorbrewer.YlGnBu[9]
+        const colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"];
         const users = d3.range(1, 101);
         const numbers = d3.range(1, 101);
 
@@ -517,10 +516,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function openNodeDetails(d) {
-        // You can customize this function to display the node details in a modal or any other way you prefer.
-        // For now, it will just log the details to the console.
         console.log("Node details:", d);
     }
 
-    fetchData(); // Fetch initial data when the page loads
+    fetchData();
 });
