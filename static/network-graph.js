@@ -262,7 +262,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .attr('stroke-width', d => d.weight)
             .attr('stroke', '#999');
 
-            const node = g.append('g')
+        const node = g.append('g')
             .attr('class', 'nodes')
             .selectAll('circle')
             .data(visibleNodes)
@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .on('click', function(event, d) {
                 toggleNodeSelection(d);
-            });        
+            });
 
         node.append('title')
             .text(d => `Group: ${d.id}\nNumbers: ${d.numbers.join(', ')}`);
@@ -375,6 +375,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
     }
+
     function highlightAssociatedNumbers(numbers) {
         console.log('Highlight Numbers:', numbers);
         const associatedNumbers = new Set(numbers);
@@ -404,7 +405,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return graphData.nodes.some(node => node.numbers.includes(d)) ? '1px solid #e0e0e0' : 'none';
             });
     }
-    
 
     function resetSelection() {
         selectedNumbers.clear();
