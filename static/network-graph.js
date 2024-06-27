@@ -278,7 +278,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 highlightAssociatedNumbers(Array.from(selectedNumbers));
             })
             .on('click', function(event, d) {
-                openNodeDetails(d);
+                toggleNodeSelection(d);
             });
 
         node.append('title')
@@ -386,6 +386,9 @@ document.addEventListener('DOMContentLoaded', function() {
             .style('background-color', d => {
                 if (d === 'X') return '#ffffff';
                 return associatedNumbers.has(d) ? color(graphData.nodes.find(node => node.numbers.includes(d)).id) : (graphData.nodes.some(node => node.numbers.includes(d)) ? '#e0e0e0' : '#ffffff');
+            })
+            .style('border', d => {
+                return associatedNumbers.has(d) ? '2px solid black' : (graphData.nodes.some(node => node.numbers.includes(d)) ? '1px solid #e0e0e0' : 'none');
             });
     }
 
