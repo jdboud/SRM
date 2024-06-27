@@ -384,10 +384,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     toggleNumberSelection(d);
                 }
             });
-    
+
         console.log('Number Boxes:', numberBox);
     }
-    
+
     function highlightAssociatedNumbers(numbers) {
         const associatedNumbers = new Set(numbers);
         graphData.nodes.forEach(node => {
@@ -397,16 +397,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         });
-    
+
         console.log('Highlight Associated Numbers:', numbers, associatedNumbers);
-    
+
         numberGrid.selectAll('.number-box')
             .style('background-color', d => {
                 if (d === 'X') return '#ffffff';
                 return associatedNumbers.has(d) ? color(graphData.nodes.find(node => node.numbers.includes(d)).id) : (graphData.nodes.some(node => node.numbers.includes(d)) ? '#e0e0e0' : '#ffffff');
             });
     }
-    
 
     function resetSelection() {
         selectedNumbers.clear();
@@ -535,4 +534,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     fetchData(); // Fetch initial data when the page loads
+
+    // Define a placeholder function for openNodeDetails
+    function openNodeDetails(d) {
+        console.log('Node details:', d);
+    }
 });
