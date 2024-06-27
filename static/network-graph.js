@@ -524,5 +524,11 @@ document.addEventListener('DOMContentLoaded', function() {
         legend.exit().remove();
     }
 
+    function openNodeDetails(d) {
+        // You can customize this function to display the node details in a modal or any other way you prefer.
+        // For now, it will just log the details to the console.
+        console.log("Node details:", d);
+    }
+
     fetchData(); // Fetch initial data when the page loads
 });
