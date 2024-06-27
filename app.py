@@ -10,10 +10,20 @@ app = Flask(__name__, static_url_path='', static_folder='static')
 def get_data():
     # Load the Excel file
     file_path = os.path.join(app.root_path, 'data', 'binaryCleanUserNumberCollections1Test024.xlsx')
+    
+    # Debugging: Print file path
+    print(f"Loading data from: {file_path}")
+    
     df = pd.read_excel(file_path, index_col=0)
+    
+    # Debugging: Print DataFrame head
+    print(f"DataFrame head:\n{df.head()}")
 
     # Create user collections from data
     user_collections = {user: set(df.index[df[user] == 1]) for user in df.columns}
+    
+    # Debugging: Print user collections
+    print(f"User collections: {user_collections}")
 
     # Create common groups
     common_groups = {}
@@ -26,6 +36,9 @@ def get_data():
                     if sorted_common not in common_groups:
                         common_groups[sorted_common] = set()
                     common_groups[sorted_common].update([user1, user2])
+
+    # Debugging: Print common groups
+    print(f"Common groups: {common_groups}")
 
     # Create the graph
     G = nx.Graph()
@@ -52,6 +65,9 @@ def get_data():
     links = [{"source": group1, "target": group2, "weight": G.edges[group1, group2]["weight"]} for group1, group2 in G.edges()]
 
     data = {"nodes": nodes, "links": links}
+
+    # Debugging: Print the final data
+    print(f"Final data: {data}")
 
     return jsonify(data)
 
