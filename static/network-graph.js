@@ -386,6 +386,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function highlightAssociatedNumbers(numbers) {
         console.log('Highlight Numbers:', numbers);
+    
         const associatedNumbers = new Set(numbers);
         graphData.nodes.forEach(node => {
             if (node.numbers.some(num => selectedNumbers.has(num))) {
@@ -394,26 +395,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         });
-
+    
         numberGrid.selectAll('.number-box')
-            .classed('highlighted', d => associatedNumbers.has(d))
             .style('background-color', d => {
                 if (d === 'X') return '#f4ce65';
-                const node = graphData.nodes.find(node => node.numbers.includes(d));
                 if (associatedNumbers.has(d)) {
-                    console.log('Highlighting Number:', d, 'with color:', color(node.id));
-                    return color(node.id);
+                    const node = graphData.nodes.find(node => node.numbers.includes(d));
+                    if (node) {
+                        console.log('Highlighting Number:', d, 'with color:', color(node.id));
+                        return color(node.id);
+                    }
                 }
                 return graphData.nodes.some(node => node.numbers.includes(d)) ? '#e0e0e0' : '#ffffff';
             })
             .style('border', d => {
+                if (d === 'X') return '4px solid #f4ce65';
                 if (associatedNumbers.has(d)) {
                     console.log('Setting Border for Number:', d);
                     return '2px solid black';
                 }
                 return graphData.nodes.some(node => node.numbers.includes(d)) ? '1px solid #e0e0e0' : 'none';
             });
+    
+        // Ensure grid visibility after highlighting
+        numberGrid.style('display', 'flex');
     }
+    
 
     function resetSelection() {
         selectedNumbers.clear();
