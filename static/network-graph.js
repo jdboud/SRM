@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .attr('width', '100%')
         .attr('height', '500px');
 
-    const g = svg.append('g'); // Create a group element for graph content
+    const g = svg.append('g');
     svg.call(d3.zoom().on('zoom', zoomed));
 
     const heatmapContainer = d3.select('#heatmap').append('svg')
@@ -96,8 +96,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function processData(data) {
-        const df = data.slice(1); // Remove header row
-        const headers = data[0].slice(1); // Remove index column
+        const df = data.slice(1);
+        const headers = data[0].slice(1);
         const user_collections = {};
         const common_groups = {};
 
@@ -395,32 +395,23 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        console.log('Associated Numbers:', Array.from(associatedNumbers));
-
         numberGrid.selectAll('.number-box')
             .style('background-color', d => {
-                console.log('Checking number:', d);
                 if (d === 'X') return '#f4ce65';
+                const node = graphData.nodes.find(node => node.numbers.includes(d));
                 if (associatedNumbers.has(d)) {
-                    const node = graphData.nodes.find(node => node.numbers.includes(d));
-                    if (node) {
-                        console.log('Highlighting Number:', d, 'with color:', color(node.id));
-                        return color(node.id);
-                    }
+                    console.log('Highlighting Number:', d, 'with color:', color(node.id));
+                    return color(node.id);
                 }
                 return graphData.nodes.some(node => node.numbers.includes(d)) ? '#e0e0e0' : '#ffffff';
             })
             .style('border', d => {
-                if (d === 'X') return '4px solid #f4ce65';
                 if (associatedNumbers.has(d)) {
                     console.log('Setting Border for Number:', d);
                     return '2px solid black';
                 }
                 return graphData.nodes.some(node => node.numbers.includes(d)) ? '1px solid #e0e0e0' : 'none';
             });
-
-        // Ensure grid visibility after highlighting
-        numberGrid.style('display', 'flex');
     }
 
     function resetSelection() {
