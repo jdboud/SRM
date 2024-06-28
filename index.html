@@ -5,22 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Network Graph</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="static/styles.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3-venn@0.2.0/build/d3-venn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
     <div id="network-graph"></div>
     <div id="heatmap" style="display: none;"></div>
     <div id="euler-diagram" style="display: none;"></div>
     <div class="slider-container">
-       <label for="numbers-range-slider"></label>
+        <label for="numbers-range-slider">Numbers Range Slider:</label>
         <div id="numbers-range-slider" class="slider"></div>
-        <label for="node-size-slider"></label>
+        
+        <label for="node-size-slider">Node Size Slider:</label>
         <div id="node-size-slider" class="slider"></div>
-        <label for="graph-size-slider"></label>
+        
+        <label for="graph-size-slider">Graph Size Slider:</label>
         <div id="graph-size-slider" class="slider"></div>
+        
     </div>
     <div id="number-grid"></div>
     <label for="layout-dropdown">Layout:</label>
@@ -31,11 +35,10 @@
         <option value="grid">Grid Layout</option>
         <option value="concentric">Concentric</option>
     </select>
-    
     <label for="node-size-factor">Node Size Factor:</label>
     <input type="number" id="node-size-factor" min="0.1" max="10" value="6" step="0.2">
     <label for="edge-length-factor">Edge Length Factor:</label>
     <input type="number" id="edge-length-factor" min="0" max="10" value="8" step="0.2">
-    <script src="static/euler-diagram.js"></script>
+    <script src="static/network-graph.js"></script>
 </body>
 </html>
