@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Network Graph</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.css">
-    <link rel="stylesheet" href="static/styles.css">
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/d3-venn@0.2.0/build/d3-venn.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.js"></script>
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Interactive Network Graph</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.css">
+        <link rel="stylesheet" href="/static/styles.css">
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/d3-venn@0.2.0/build/d3-venn.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.js"></script>
+    </head>
 <body>
     <div id="network-graph"></div>
     <div id="heatmap" style="display: none;"></div>
@@ -23,6 +23,7 @@
         <div id="graph-size-slider" class="slider"></div>
     </div>
     <div id="number-grid"></div>
+    <div class="toggle-box" id="edges-toggle">E</div>
     <label for="layout-dropdown">Layout:</label>
     <select id="layout-dropdown">
         <option value="force">Force-Directed Layout</option>

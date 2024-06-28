@@ -199,3 +199,80 @@ label {
     margin-bottom: 0px;
 
 }
+#network-graph {
+    width: 100%;
+    height: 500px;
+    border: 0px solid #ccc;
+    transform-origin: center center;
+}
+
+.nodes circle {
+    stroke: #fff;
+    stroke-width: 0px;
+    fill-opacity: 70%;
+}
+
+.node.selected {
+    fill: red;
+}
+
+.links line {
+    stroke: #999999b1;
+    stroke-opacity: 0;
+}
+
+.number-box {
+    width: 30px;
+    height: 30px;
+    font-family: Arial, sans-serif; /* Change the font */
+    font-size: 12px; /* Change the font size */
+    color: #3a3939; /* Change the text color */
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    border: none; /* Remove border */
+    margin: 0; /* Remove spaces between boxes */
+    padding: 4px; /* Add some padding inside the boxes */
+    box-sizing: border-box; /* Include padding and border in element's total width and height */
+}
+
+#number-grid {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.toggle-box {
+    display: inline-block;
+    font-size: 12px;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 30px;
+    margin: 2px;
+    background-color: #666;
+    color: #fff;
+    cursor: pointer;
+    border: 4px solid #666;
+    box-sizing: border-box;
+}
+
+.slider-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 0px;
+    margin-bottom: 10px;
+}
+
+.slider {
+    width: 70%;
+}
+
+#node-size-slider {
+    width: 30%;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
