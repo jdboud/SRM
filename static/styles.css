@@ -3,6 +3,8 @@
     height: 500px;
     border: 0px solid #ccc;
     transform-origin: center center;
+    position: relative; /* Ensure it is positioned correctly */
+    z-index: 1;
 }
 
 .nodes circle {
@@ -31,10 +33,13 @@
     align-items: center;
     justify-content: center;
     display: flex;
-    border: none;
+    border: 1px solid #ccc; /* Add border for debugging */
     margin: 0;
     padding: 4px;
     box-sizing: border-box;
+    position: relative;
+    z-index: 10; /* Ensure number boxes are above other elements */
+    pointer-events: all; /* Ensure pointer events are enabled */
 }
 
 .number-box.highlighted {
@@ -50,6 +55,8 @@
     margin-top: 20px;
     display: flex;
     flex-wrap: wrap;
+    position: relative; /* Ensure it is positioned correctly */
+    z-index: 10; /* Ensure grid is above other elements */
 }
 
 .noUi-horizontal {
@@ -62,6 +69,8 @@
     margin-right: 5%;
     background-color: #ffffff;
     border-radius: 0px;
+    position: relative;
+    z-index: 1;
 }
 
 .noUi-handle::before,
@@ -103,9 +112,8 @@
     margin-left: 1%;
     margin-right: 5%;
     background-color: #f4ce65;
-    position: right;
-    top: 0px;
-    left: 10px;
+    position: relative;
+    z-index: 1;
 }
 
 #graph-size-slider .noUi-handle {
@@ -124,9 +132,8 @@
     margin-left: 1%;
     margin-right: 5%;
     background-color: #f4ce65;
-    position: right;
-    top: 0px;
-    left: 10px;
+    position: relative;
+    z-index: 1;
 }
 
 #layout-dropdown {
