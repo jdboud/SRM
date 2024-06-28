@@ -385,13 +385,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function highlightAssociatedNumbers(numbers) {
-        console.log('Highlight Numbers:', numbers);
         const associatedNumbers = new Set(numbers);
-
-        // Ensure the boxes are being selected correctly
-        const allBoxes = numberGrid.selectAll('.number-box');
-        console.log('Total number of boxes:', allBoxes.size());
-
+    
         numberGrid.selectAll('.number-box')
             .style('background-color', d => {
                 if (d === 'X') return '#f4ce65';
@@ -406,7 +401,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 return '1px solid #e0e0e0';
             });
-
+    
         // Highlight nodes in the graph as well
         g.selectAll('circle')
             .style('stroke', d => {
@@ -422,7 +417,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 return '0px';
             });
     }
-
+    
+    // Event listeners for node hover
+    node.on('mouseover', function(event, d) {
+        highlightAssociatedNumbers(d.numbers);
+    })
+    .on('mouseout', function(event, d) {
+        highlightAssociatedNumbers([]);
+    });
+    
     function resetSelection() {
         selectedNumbers.clear();
         numberGrid.selectAll('.number-box')
