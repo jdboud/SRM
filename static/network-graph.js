@@ -392,20 +392,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const allBoxes = numberGrid.selectAll('.number-box');
         console.log('Total number of boxes:', allBoxes.size());
 
-        numberGrid.selectAll('.number-box')
-            .style('background-color', d => {
-                if (d === 'X') return '#f4ce65';
-                if (associatedNumbers.has(d)) {
-                    return 'yellow';
-                }
-                return '#ffffff';
-            })
-            .style('border', d => {
-                if (associatedNumbers.has(d)) {
-                    return '2px solid black';
-                }
-                return '1px solid #e0e0e0';
-            });
+        numberGrid.selectAll('.number-box').each(function(d) {
+            const box = d3.select(this);
+            if (associatedNumbers.has(d)) {
+                box.style('background-color', 'yellow')
+                   .style('border', '2px solid black');
+            } else {
+                box.style('background-color', '#ffffff')
+                   .style('border', '1px solid #e0e0e0');
+            }
+        });
 
         // Highlight nodes in the graph as well
         g.selectAll('circle')
@@ -552,4 +548,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
     fetchData();
 });
-
