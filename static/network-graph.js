@@ -394,7 +394,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         });
-
+    
         numberGrid.selectAll('.number-box')
             .style('background-color', d => {
                 if (d === 'X') return '#f4ce65';
@@ -413,6 +413,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return graphData.nodes.some(node => node.numbers.includes(d)) ? '1px solid #e0e0e0' : 'none';
             });
     }
+    
 
     function resetSelection() {
         selectedNumbers.clear();
