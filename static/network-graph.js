@@ -622,5 +622,10 @@ document.addEventListener('DOMContentLoaded', function() {
         legend.exit().remove();
     }
 
-    fetchData(); // Fetch initial data when the page loads
+    // Process the embedded data immediately after defining the function
+    graphData = processData(data);
+
+    // Initialize the graph and grid with the processed data
+    updateGraph(false);
+    updateGrid();
 });
