@@ -394,7 +394,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         });
-    
+
         numberGrid.selectAll('.number-box')
             .classed('highlighted', d => associatedNumbers.has(d))
             .style('background-color', d => {
@@ -414,7 +414,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return graphData.nodes.some(node => node.numbers.includes(d)) ? '1px solid #e0e0e0' : 'none';
             });
     }
-    
 
     function resetSelection() {
         selectedNumbers.clear();
