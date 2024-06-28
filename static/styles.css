@@ -258,21 +258,3 @@ label {
     box-sizing: border-box;
 }
 
-.slider-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    margin-top: 0px;
-    margin-bottom: 10px;
-}
-
-.slider {
-    width: 70%;
-}
-
-#node-size-slider {
-    width: 30%;
-    margin-top: 0px;
-    margin-bottom: 0px;
-}
