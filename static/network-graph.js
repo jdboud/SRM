@@ -21,19 +21,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const nodeSizeFactorInput = document.getElementById('node-size-factor');
     const edgeLengthFactorInput = document.getElementById('edge-length-factor');
     const numberGrid = d3.select('#number-grid');
-    const edgesToggle = document.getElementById('edges-toggle');
 
     layoutDropdown.addEventListener('change', updateGraph);
     nodeSizeFactorInput.addEventListener('input', updateGraph);
     edgeLengthFactorInput.addEventListener('input', updateGraph);
-    edgesToggle.addEventListener('click', toggleEdges);
 
     let graphData = { nodes: [], links: [] };
     let selectedNumbers = new Set();
     let maxIndices = 100;
     let nodeSizeFactor = 1; // Initial node size factor
     let graphSizeFactor = 1; // Initial graph size factor
-    let edgesVisible = true; // Track edge visibility
 
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -74,7 +71,6 @@ document.addEventListener('DOMContentLoaded', function() {
         graphSizeFactor = values[handle];
         updateGraph(true); // Pass true to use transitions
     });
-
 
     // Embed the Excel data directly in the script
     const data = [
@@ -177,8 +173,8 @@ document.addEventListener('DOMContentLoaded', function() {
         [0, 1, 0, 1, 0, 0, 0, 0, 0, 0]
     ];
 
-     // Process the embedded data
-     function processData(data) {
+    // Process the embedded data
+    function processData(data) {
         const df = {};
         data.forEach((row, i) => {
             row.forEach((val, j) => {
@@ -352,8 +348,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .data(visibleLinks)
             .enter().append('line')
             .attr('stroke-width', d => d.weight)
-            .attr('stroke', '#999')
-            .style('opacity', edgesVisible ? 1 : 0); // Apply edge visibility
+            .attr('stroke', '#999');
 
         const node = g.append('g')
             .attr('class', 'nodes')
@@ -368,11 +363,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 .on('end', dragended))
             .on('mouseover', function(event, d) {
                 highlightAssociatedNumbers(d.numbers);
-                highlightConnectedNodes(d, true); // Highlight connected nodes
             })
             .on('mouseout', function(event, d) {
                 highlightAssociatedNumbers(Array.from(selectedNumbers));
-                highlightConnectedNodes(d, false); // Remove highlight from connected nodes
             })
             .on('click', function(event, d) {
                 openNodeDetails(d);
@@ -469,17 +462,17 @@ document.addEventListener('DOMContentLoaded', function() {
         numberGrid.selectAll('.number-box').remove();
 
         const numberBox = numberGrid.selectAll('.number-box')
-            .data([...allNumbers, 'X', 'E']) // Add 'X' for reset button and 'E' for edge toggle
+            .data([...allNumbers, 'X']) // Add 'X' for reset button
             .enter().append('div')
             .attr('class', 'number-box')
-            .style('background-color', d => d === 'X' ? '#f4ce65' : (d === 'E' ? '#666' : (numbersInGroups.has(d) ? '#e0e0e0' : '#ffffff'))) // Grey selectable numbers, dark grey for 'E'
-            .style('border', d => d === 'X' ? '4px solid #f4ce65' : (d === 'E' ? '4px solid #666' : '1px solid #e0e0e0')) // Orange border for 'X', dark grey for 'E', light gray for others
+            .style('fill', d => d === 'X' ? '#f4ce65' : '#39ea7d') // Orange fill for 'X', light gray for others
+            .style('background-color', d => d === 'X' ? '#ffffff' : (numbersInGroups.has(d) ? '#e0e0e0' : '#ffffff')) // Grey selectable numbers
+            .style('border', d => d === 'X' ? '4px solid #f4ce65' : '1px solid #e0e0e0') // Orange border for 'X', light gray for others
+
             .text(d => d)
             .on('click', function(event, d) {
                 if (d === 'X') {
                     resetSelection();
-                } else if (d === 'E') {
-                    toggleEdges();
                 } else if (numbersInGroups.has(d)) {
                     toggleNumberSelection(d);
                 }
@@ -498,24 +491,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         numberGrid.selectAll('.number-box')
             .style('background-color', d => {
-                if (d === 'X' || d === 'E') return d === 'X' ? '#ffffff' : '#666';
+                if (d === 'X') return '#ffffff';
                 return associatedNumbers.has(d) ? color(graphData.nodes.find(node => node.numbers.includes(d)).id) : (graphData.nodes.some(node => node.numbers.includes(d)) ? '#e0e0e0' : '#ffffff');
             });
-    }
-
-    function highlightConnectedNodes(node, highlight) {
-        const connectedNodes = new Set();
-        graphData.links.forEach(link => {
-            if (link.source.id === node.id) {
-                connectedNodes.add(link.target.id);
-            } else if (link.target.id === node.id) {
-                connectedNodes.add(link.source.id);
-            }
-        });
-
-        d3.selectAll('.nodes circle')
-            .attr('stroke', d => connectedNodes.has(d.id) && highlight ? 'white' : 'none')
-            .attr('stroke-width', d => connectedNodes.has(d.id) && highlight ? 3 : 0);
     }
 
     function resetSelection() {
@@ -533,11 +511,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         highlightAssociatedNumbers(Array.from(selectedNumbers));
         updateGraph();
-    }
-
-    function toggleEdges() {
-        edgesVisible = !edgesVisible;
-        d3.selectAll('.links line').style('opacity', edgesVisible ? 1 : 0);
     }
 
     function dragstarted(event, d) {
