@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .attr('width', '100%')
         .attr('height', '500px');
 
-    const g = svg.append('g');
+    const g = svg.append('g'); // Create a group element for graph content
     svg.call(d3.zoom().on('zoom', zoomed));
 
     const heatmapContainer = d3.select('#heatmap').append('svg')
@@ -96,8 +96,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function processData(data) {
-        const df = data.slice(1);
-        const headers = data[0].slice(1);
+        const df = data.slice(1); // Remove header row
+        const headers = data[0].slice(1); // Remove index column
         const user_collections = {};
         const common_groups = {};
 
@@ -277,7 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 highlightAssociatedNumbers(d.numbers);
             })
             .on('mouseout', function(event, d) {
-                highlightAssociatedNumbers(Array.from(selectedNumbers));
+                highlightAssociatedNumbers([]);
             })
             .on('click', function(event, d) {
                 toggleNodeSelection(d);
@@ -387,38 +387,43 @@ document.addEventListener('DOMContentLoaded', function() {
     function highlightAssociatedNumbers(numbers) {
         console.log('Highlight Numbers:', numbers);
         const associatedNumbers = new Set(numbers);
-        graphData.nodes.forEach(node => {
-            if (node.numbers.some(num => selectedNumbers.has(num))) {
-                node.numbers.forEach(number => {
-                    associatedNumbers.add(number);
-                });
-            }
-        });
-    
+
         numberGrid.selectAll('.number-box')
             .style('background-color', d => {
                 if (d === 'X') return '#f4ce65';
-                const node = graphData.nodes.find(node => node.numbers.includes(d));
                 if (associatedNumbers.has(d)) {
-                    console.log('Highlighting Number:', d, 'with color:', color(node.id));
-                    return color(node.id);
+                    return 'yellow';
                 }
-                return graphData.nodes.some(node => node.numbers.includes(d)) ? '#e0e0e0' : '#ffffff';
+                return '#ffffff';
             })
             .style('border', d => {
                 if (associatedNumbers.has(d)) {
-                    console.log('Setting Border for Number:', d);
                     return '2px solid black';
                 }
-                return graphData.nodes.some(node => node.numbers.includes(d)) ? '1px solid #e0e0e0' : 'none';
+                return '1px solid #e0e0e0';
+            });
+
+        // Highlight nodes in the graph as well
+        g.selectAll('circle')
+            .style('stroke', d => {
+                if (d.numbers.some(num => associatedNumbers.has(num))) {
+                    return 'black';
+                }
+                return 'none';
+            })
+            .style('stroke-width', d => {
+                if (d.numbers.some(num => associatedNumbers.has(num))) {
+                    return '2px';
+                }
+                return '0px';
             });
     }
-    
 
     function resetSelection() {
         selectedNumbers.clear();
         numberGrid.selectAll('.number-box')
-            .style('background-color', d => d === 'X' ? '#f4ce65' : (graphData.nodes.some(node => node.numbers.includes(d)) ? '#e0e0e0' : '#ffffff'));
+            .style('background-color', d => d === 'X' ? '#f4ce65' : '#ffffff')
+            .style('border', '1px solid #e0e0e0');
         updateGraph();
     }
 
