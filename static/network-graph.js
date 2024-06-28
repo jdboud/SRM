@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const layoutDropdown = document.getElementById('layout-dropdown');
     const numbersRangeSlider = document.getElementById('numbers-range-slider');
-    const nodeSizeSlider = document.getElementById('node-size-slider'); // Node size slider element
-    const graphSizeSlider = document.getElementById('graph-size-slider'); // New slider element
+    const nodeSizeSlider = document.getElementById('node-size-slider');
+    const graphSizeSlider = document.getElementById('graph-size-slider');
     const nodeSizeFactorInput = document.getElementById('node-size-factor');
     const edgeLengthFactorInput = document.getElementById('edge-length-factor');
     const numberGrid = d3.select('#number-grid');
@@ -28,9 +28,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let graphData = { nodes: [], links: [] };
     let selectedNumbers = new Set();
-    let maxIndices = 100;
-    let nodeSizeFactor = 1; // Initial node size factor
-    let graphSizeFactor = 1; // Initial graph size factor
+    let nodeSizeFactor = 1;
+    let graphSizeFactor = 1;
 
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -43,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    noUiSlider.create(nodeSizeSlider, { // Initialize the node size slider
+    noUiSlider.create(nodeSizeSlider, {
         start: [4],
         range: {
             'min': 0.1,
@@ -52,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
         step: 0.1
     });
 
-    noUiSlider.create(graphSizeSlider, { // Initialize the graph size slider
+    noUiSlider.create(graphSizeSlider, {
         start: [1],
         range: {
             'min': 0.6,
@@ -64,12 +63,12 @@ document.addEventListener('DOMContentLoaded', function() {
     numbersRangeSlider.noUiSlider.on('update', updateGraph);
     nodeSizeSlider.noUiSlider.on('update', function(values, handle) {
         nodeSizeFactor = values[handle];
-        updateGraph(true); // Pass true to use transitions
+        updateGraph(true);
     });
 
     graphSizeSlider.noUiSlider.on('update', function(values, handle) {
         graphSizeFactor = values[handle];
-        updateGraph(true); // Pass true to use transitions
+        updateGraph(true);
     });
 
     function fetchData() {
@@ -274,11 +273,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 .on('drag', dragged)
                 .on('end', dragended))
             .on('mouseover', function(event, d) {
-                console.log('Mouseover Node:', d); // Debugging statement
+                console.log('Mouseover Node:', d);
                 highlightAssociatedNumbers(d.numbers);
             })
             .on('mouseout', function(event, d) {
-                console.log('Mouseout Node:', d); // Debugging statement
                 highlightAssociatedNumbers(Array.from(selectedNumbers));
             })
             .on('click', function(event, d) {
@@ -371,11 +369,11 @@ document.addEventListener('DOMContentLoaded', function() {
         numberGrid.selectAll('.number-box').remove();
 
         const numberBox = numberGrid.selectAll('.number-box')
-            .data([...allNumbers, 'X']) // Add 'X' for reset button
+            .data([...allNumbers, 'X'])
             .enter().append('div')
             .attr('class', 'number-box')
-            .style('background-color', d => d === 'X' ? '#f4ce65' : (numbersInGroups.has(d) ? '#e0e0e0' : '#ffffff')) // Orange fill for 'X', light gray for others
-            .style('border', d => d === 'X' ? '4px solid #f4ce65' : '1px solid #e0e0e0') // Orange border for 'X', light gray for others
+            .style('background-color', d => d === 'X' ? '#f4ce65' : (numbersInGroups.has(d) ? '#e0e0e0' : '#ffffff'))
+            .style('border', d => d === 'X' ? '4px solid #f4ce65' : '1px solid #e0e0e0')
             .text(d => d)
             .on('click', function(event, d) {
                 if (d === 'X') {
@@ -399,7 +397,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         numberGrid.selectAll('.number-box')
             .style('background-color', d => {
-                if (d === 'X') return '#ffffff';
+                if (d === 'X') return '#f4ce65';
                 const node = graphData.nodes.find(node => node.numbers.includes(d));
                 if (associatedNumbers.has(d)) {
                     console.log('Highlighting Number:', d, 'with color:', color(node.id));
@@ -457,7 +455,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const gridSize = Math.floor(width / 24);
         const legendElementWidth = gridSize * 2;
         const buckets = 9;
-        const colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"]; // alternatively colorbrewer.YlGnBu[9]
+        const colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"];
         const users = d3.range(1, 101);
         const numbers = d3.range(1, 101);
 
@@ -542,5 +540,5 @@ document.addEventListener('DOMContentLoaded', function() {
         legend.exit().remove();
     }
 
-    fetchData(); // Fetch initial data when the page loads
+    fetchData();
 });
