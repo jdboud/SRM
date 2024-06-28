@@ -24,6 +24,7 @@
 .number-box {
     width: 30px;
     height: 30px;
+    visibility: visible !important;
     font-family: Arial, sans-serif; /* Change the font */
     font-size: 12px; /* Change the font size */
     color: #3a3939; /* Change the text color */

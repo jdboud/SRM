@@ -386,7 +386,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function highlightAssociatedNumbers(numbers) {
         console.log('Highlight Numbers:', numbers);
-    
         const associatedNumbers = new Set(numbers);
         graphData.nodes.forEach(node => {
             if (node.numbers.some(num => selectedNumbers.has(num))) {
@@ -395,9 +394,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         });
-    
+
+        console.log('Associated Numbers:', Array.from(associatedNumbers));
+
         numberGrid.selectAll('.number-box')
             .style('background-color', d => {
+                console.log('Checking number:', d);
                 if (d === 'X') return '#f4ce65';
                 if (associatedNumbers.has(d)) {
                     const node = graphData.nodes.find(node => node.numbers.includes(d));
@@ -416,11 +418,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 return graphData.nodes.some(node => node.numbers.includes(d)) ? '1px solid #e0e0e0' : 'none';
             });
-    
+
         // Ensure grid visibility after highlighting
         numberGrid.style('display', 'flex');
     }
-    
 
     function resetSelection() {
         selectedNumbers.clear();
