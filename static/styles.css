@@ -3,6 +3,7 @@
     height: 500px;
     border: 0px solid #ccc;
     transform-origin: center center;
+    
 }
 
 .nodes circle {
@@ -34,12 +35,12 @@
     padding: 4px; /* Add some padding inside the boxes */
     box-sizing: border-box; /* Include padding and border in element's total width and height */
 }
-
 #number-grid {
     margin-top: 20px;
     display: flex;
     flex-wrap: wrap;
 }
+
 
 /* CSS for the dual-range slider */
 .noUi-horizontal {
@@ -71,16 +72,20 @@
     cursor: pointer;
     width: 20px; /* Set the width of the handle */
     height: 20px; /* Set the height of the handle */
+
+    
 }
 
 .noUi-connect {
     background: #f4ce65; /* Connect bar color */
     border: none;
+
 }
 
 .noUi-target {
     background: #ffffff; /* Slider track background color */
     border: none;
+
 }
 
 #node-size-slider {
@@ -134,6 +139,8 @@
     background-size: 12px; /* Size of the custom arrow */
 }
 
+
+
 #node-size-factor,
 #edge-length-factor {
     width: 35px;
@@ -157,6 +164,12 @@ label {
     font-weight: bold; /* Make the label text bold */
 }
 
+/*#network-graph, #heatmap {
+    width: 100%;
+    height: 500px;
+    border: 0px solid #ccc;
+    margin-bottom: 20px;
+}*/
 .number-box {
     display: inline-block;
     font-size: 0px; /* Size of the text */
@@ -184,4 +197,5 @@ label {
     width: 30%;
     margin-top: 0px;
     margin-bottom: 0px;
+
 }

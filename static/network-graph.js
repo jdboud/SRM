@@ -362,10 +362,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 .on('drag', dragged)
                 .on('end', dragended))
             .on('mouseover', function(event, d) {
-                highlightConnectedNodes(d, true); // Highlight connected nodes on hover
+                highlightAssociatedNumbers(d.numbers);
             })
             .on('mouseout', function(event, d) {
-                highlightConnectedNodes(d, false); // Remove highlight on mouse out
+                highlightAssociatedNumbers(Array.from(selectedNumbers));
             })
             .on('click', function(event, d) {
                 openNodeDetails(d);
@@ -401,28 +401,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         node.attr('cx', d => d.x)
             .attr('cy', d => d.y);
-    }
-
-    function highlightConnectedNodes(node, highlight) {
-        const connectedNodes = new Set();
-        const connectedLinks = new Set();
-        
-        graphData.links.forEach(link => {
-            if (link.source.id === node.id || link.target.id === node.id) {
-                connectedNodes.add(link.source.id);
-                connectedNodes.add(link.target.id);
-                connectedLinks.add(link);
-            }
-        });
-
-        // Highlight nodes
-        d3.selectAll('.nodes circle')
-            .attr('stroke', d => connectedNodes.has(d.id) && highlight ? 'white' : null)
-            .attr('stroke-width', d => connectedNodes.has(d.id) && highlight ? 3 : null);
-        
-        // Optionally highlight links
-        d3.selectAll('.links line')
-            .attr('stroke-opacity', d => connectedLinks.has(d) && highlight ? 1 : 0);
     }
 
     function updateVennDiagram() {
