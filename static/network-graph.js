@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const layoutDropdown = document.getElementById('layout-dropdown');
     const numbersRangeSlider = document.getElementById('numbers-range-slider');
-    const nodeSizeSlider = document.getElementById('node-size-slider');
-    const graphSizeSlider = document.getElementById('graph-size-slider');
+    const nodeSizeSlider = document.getElementById('node-size-slider'); // Node size slider element
+    const graphSizeSlider = document.getElementById('graph-size-slider'); // New slider element
     const nodeSizeFactorInput = document.getElementById('node-size-factor');
     const edgeLengthFactorInput = document.getElementById('edge-length-factor');
     const numberGrid = d3.select('#number-grid');
@@ -29,8 +29,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let graphData = { nodes: [], links: [] };
     let selectedNumbers = new Set();
     let maxIndices = 100;
-    let nodeSizeFactor = 1;
-    let graphSizeFactor = 1;
+    let nodeSizeFactor = 1; // Initial node size factor
+    let graphSizeFactor = 1; // Initial graph size factor
 
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    noUiSlider.create(nodeSizeSlider, {
+    noUiSlider.create(nodeSizeSlider, { // Initialize the node size slider
         start: [4],
         range: {
             'min': 0.1,
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
         step: 0.1
     });
 
-    noUiSlider.create(graphSizeSlider, {
+    noUiSlider.create(graphSizeSlider, { // Initialize the graph size slider
         start: [1],
         range: {
             'min': 0.6,
@@ -64,12 +64,12 @@ document.addEventListener('DOMContentLoaded', function() {
     numbersRangeSlider.noUiSlider.on('update', updateGraph);
     nodeSizeSlider.noUiSlider.on('update', function(values, handle) {
         nodeSizeFactor = values[handle];
-        updateGraph(true);
+        updateGraph(true); // Pass true to use transitions
     });
 
     graphSizeSlider.noUiSlider.on('update', function(values, handle) {
         graphSizeFactor = values[handle];
-        updateGraph(true);
+        updateGraph(true); // Pass true to use transitions
     });
 
     function fetchData() {
@@ -314,6 +314,16 @@ document.addEventListener('DOMContentLoaded', function() {
             .attr('cy', d => d.y);
     }
 
+    function toggleNodeSelection(node) {
+        if (selectedNumbers.has(node)) {
+            selectedNumbers.delete(node);
+        } else {
+            selectedNumbers.add(node);
+        }
+        highlightAssociatedNumbers(Array.from(selectedNumbers));
+        updateGraph();
+    }
+
     function updateVennDiagram() {
         d3.select("#network-graph svg").selectAll("*").remove();
 
@@ -361,11 +371,11 @@ document.addEventListener('DOMContentLoaded', function() {
         numberGrid.selectAll('.number-box').remove();
 
         const numberBox = numberGrid.selectAll('.number-box')
-            .data([...allNumbers, 'X'])
+            .data([...allNumbers, 'X']) // Add 'X' for reset button
             .enter().append('div')
             .attr('class', 'number-box')
-            .style('background-color', d => d === 'X' ? '#ffffff' : (numbersInGroups.has(d) ? '#e0e0e0' : '#ffffff'))
-            .style('border', d => d === 'X' ? '4px solid #f4ce65' : '1px solid #e0e0e0')
+            .style('background-color', d => d === 'X' ? '#f4ce65' : (numbersInGroups.has(d) ? '#e0e0e0' : '#ffffff')) // Orange fill for 'X', light gray for others
+            .style('border', d => d === 'X' ? '4px solid #f4ce65' : '1px solid #e0e0e0') // Orange border for 'X', light gray for others
             .text(d => d)
             .on('click', function(event, d) {
                 if (d === 'X') {
@@ -409,7 +419,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function resetSelection() {
         selectedNumbers.clear();
         numberGrid.selectAll('.number-box')
-            .style('background-color', d => d === 'X' ? '#ffffff' : (graphData.nodes.some(node => node.numbers.includes(d)) ? '#e0e0e0' : '#ffffff'));
+            .style('background-color', d => d === 'X' ? '#f4ce65' : (graphData.nodes.some(node => node.numbers.includes(d)) ? '#e0e0e0' : '#ffffff'));
         updateGraph();
     }
 
@@ -447,7 +457,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const gridSize = Math.floor(width / 24);
         const legendElementWidth = gridSize * 2;
         const buckets = 9;
-        const colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"];
+        const colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"]; // alternatively colorbrewer.YlGnBu[9]
         const users = d3.range(1, 101);
         const numbers = d3.range(1, 101);
 
@@ -532,5 +542,5 @@ document.addEventListener('DOMContentLoaded', function() {
         legend.exit().remove();
     }
 
-    fetchData();
+    fetchData(); // Fetch initial data when the page loads
 });
