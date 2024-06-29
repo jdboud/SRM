@@ -350,7 +350,8 @@ document.addEventListener('DOMContentLoaded', function() {
             .attr('stroke', '#999')
             .attr('stroke-width', edgesVisible ? 1 : 0) // Initialize stroke-width based on edgesVisible
             .attr('stroke-opacity', edgesVisible ? 1 : 0); // Initialize stroke-opacity based on edgesVisible
-    
+            console.log('Links created:', g.selectAll('.links line').nodes());
+
         const node = g.append('g')
             .attr('class', 'nodes')
             .selectAll('circle')
