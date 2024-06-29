@@ -495,8 +495,9 @@ document.addEventListener('DOMContentLoaded', function() {
         edgesVisible = !edgesVisible;
         g.selectAll('.links line')
             .attr('stroke-width', d => edgesVisible ? d.weight : 0)
-            .attr('stroke', edgesVisible ? '#999' : 3);
+            .attr('stroke-opacity', edgesVisible ? 1 : 0);
     }
+    
     function highlightAssociatedNumbers(numbers) {
         const associatedNumbers = new Set(numbers);
         graphData.nodes.forEach(node => {
