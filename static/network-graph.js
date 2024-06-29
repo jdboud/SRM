@@ -347,7 +347,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .selectAll('line')
             .data(visibleLinks)
             .enter().append('line')
-            .attr('stroke-width', d => d.weight)
+           // .attr('stroke-width', d => d.weight)
             .attr('stroke', '#999');
 
         const node = g.append('g')
@@ -367,7 +367,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 g.selectAll('circle')
                     .filter(n => n.numbers.some(num => d.numbers.includes(num)) && n !== d)
                     .attr('stroke', 'white')
-                    .attr('stroke-width', 20);
+                    .attr('stroke-width', 7);
             })
             .on('mouseout', function(event, d) {
                 highlightAssociatedNumbers(Array.from(selectedNumbers));
