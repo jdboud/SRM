@@ -72,6 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
         graphSizeFactor = values[handle];
         updateGraph(true); // Pass true to use transitions
     });
+
     // Embed the Excel data directly in the script
     const data = [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -173,8 +174,8 @@ document.addEventListener('DOMContentLoaded', function() {
         [0, 1, 0, 1, 0, 0, 0, 0, 0, 0]
     ];
 
-    // Process the embedded data
-    function processData(data) {
+     // Process the embedded data
+     function processData(data) {
         const df = {};
         data.forEach((row, i) => {
             row.forEach((val, j) => {
@@ -213,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let groupID = 1;
         for (const [indices, users] of Object.entries(commonGroups)) {
             G.nodes.push({
-                id: Group ${groupID++},
+                id: `Group ${groupID++}`,
                 numbers: indices.split(',').map(Number),
                 size: 10 + (indices.split(',').length - 2)
             });
@@ -364,7 +365,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .on('end', dragended))
             .on('mouseover', function(event, d) {
                 highlightAssociatedNumbers(d.numbers);
-                d3.select(this).attr('stroke', 'white').attr('stroke-width', 6).style('stroke-opacity', 0.8);
+                d3.select(this).attr('stroke', 'white').attr('stroke-width', 6) .style('stroke-opacity', 0.8);
                 g.selectAll('circle')
                     .filter(n => n.numbers.some(num => d.numbers.includes(num)) && n !== d)
                     .attr('stroke', 'white')
@@ -384,7 +385,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
         node.append('title')
-            .text(d => Group: ${d.id}\nNumbers: ${d.numbers.join(', ')});
+            .text(d => `Group: ${d.id}\nNumbers: ${d.numbers.join(', ')}`);
 
         node.attr('stroke', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 'black' : 'none')
             .attr('stroke-width', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 0 : 0);
@@ -400,7 +401,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Apply the graph size factor only for the force layout
         if (layout === 'force') {
-            g.attr('transform', translate(${centerX}, ${centerY}) scale(${graphSizeFactor}) translate(${-centerX}, ${-centerY}));
+            g.attr('transform', `translate(${centerX}, ${centerY}) scale(${graphSizeFactor}) translate(${-centerX}, ${-centerY})`);
         } else {
             g.attr('transform', null);
         }
@@ -424,11 +425,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Prepare Venn diagram data
         const sets = [];
         const overlaps = [];
-        console.log('Graph Data:', graphData); // Debug statement to print the data in the browser console
+        /* console.log('Graph Data:', graphData); // Debug statement to print the data in the browser console*/
+        console.log('Venn Data:', vennData); // Debug statement to print the Venn data in the browser console
 
         // Create sets based on node groups
         graphData.nodes.forEach((node, index) => {
-            sets.push({ sets: [node.id], size: node.numbers.length, label: Group ${node.id} });
+            sets.push({ sets: [node.id], size: node.numbers.length, label: `Group ${node.id}` });
         });
 
         // Create overlaps based on links between nodes
@@ -450,7 +452,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Style the circles
         d3.selectAll(".venn-circle path")
-            .style("fill-opacity", 0.5);
+            .style("fill-opacity", 0.5)
+            //.style("stroke", "#fff")
+           // .style("stroke-width", 0);
 
         // Add labels
         d3.selectAll(".venn-circle text")
@@ -489,13 +493,13 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    function toggleEdges() {
+   function toggleEdges() {
         edgesVisible = !edgesVisible;
         g.selectAll('.links line')
-            .attr('stroke-width', edgesVisible ? 1 : 0)
-            .attr('stroke-opacity', edgesVisible ? 1 : 0); // Ensure opacity is also toggled
+            .attr('stroke-width', d => edgesVisible ? d.weight : 0)
+            .attr('stroke-opacity', edgesVisible ? 1 : 0);
     }
-
+    
     function highlightAssociatedNumbers(numbers) {
         const associatedNumbers = new Set(numbers);
         graphData.nodes.forEach(node => {
