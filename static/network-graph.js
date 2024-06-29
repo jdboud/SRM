@@ -363,7 +363,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .on('end', dragended))
             .on('mouseover', function(event, d) {
                 highlightAssociatedNumbers(d.numbers);
-                d3.select(this).attr('stroke', 'white').attr('stroke-width', 0);
+                d3.select(this).attr('stroke', 'white').attr('stroke-width', 7);
                 g.selectAll('circle')
                     .filter(n => n.numbers.some(num => d.numbers.includes(num)) && n !== d)
                     .attr('stroke', 'white')
