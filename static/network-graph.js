@@ -492,8 +492,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function toggleEdges() {
         edgesVisible = !edgesVisible;
         g.selectAll('.links line')
-            .attr('stroke-width', edgesVisible ? 1 : 0)
-            .attr('stroke-opacity', edgesVisible ? 1 : 0); // Ensure opacity is also toggled
+            .attr('stroke-width', edgesVisible ? 0 : 1)
+            .attr('stroke-opacity', edgesVisible ? 0 : 1); // Ensure opacity is also toggled
     }
 
     function highlightAssociatedNumbers(numbers) {
