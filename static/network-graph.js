@@ -248,39 +248,39 @@ document.addEventListener('DOMContentLoaded', function() {
         const layout = layoutDropdown.value;
         const edgeLengthFactor = edgeLengthFactorInput.value;
         const [minIndices, maxIndices] = numbersRangeSlider.noUiSlider.get().map(Number);
-
+    
         svg.style('display', layout === 'heatmap' || layout === 'euler' ? 'none' : 'block');
         heatmapContainer.style('display', layout === 'heatmap' ? 'block' : 'none');
         eulerContainer.style('display', layout === 'euler' ? 'block' : 'none');
-
+    
         if (layout === 'heatmap') {
             updateHeatmap();
             return;
         }
-
+    
         if (layout === 'euler') {
             updateEulerDiagram();
             return;
         }
-
+    
         if (layout === 'venn') {
             updateVennDiagram();
             return;
         }
-
+    
         g.selectAll('*').remove();
-
+    
         const width = svg.node().getBoundingClientRect().width;
         const height = svg.node().getBoundingClientRect().height;
-
+    
         const centerX = width / 2;
         const centerY = height / 2;
-
+    
         function boundNode(node) {
             node.x = Math.max(node.size * nodeSizeFactor, Math.min(width - node.size * nodeSizeFactor, node.x));
             node.y = Math.max(node.size * nodeSizeFactor, Math.min(height - node.size * nodeSizeFactor, node.y));
         }
-
+    
         if (layout === 'circular') {
             const angleStep = (2 * Math.PI) / graphData.nodes.length;
             graphData.nodes.forEach((node, i) => {
@@ -332,16 +332,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     node.attr('cx', d => d.x)
                         .attr('cy', d => d.y);
                 });
-
+    
             // Update the forces
             simulation.force('link').links(graphData.links);
         }
-
+    
         // Sort nodes by size in descending order to ensure smaller nodes are drawn last (on top)
         const visibleNodes = graphData.nodes.filter(node => (node.numbers.length >= minIndices && node.numbers.length <= maxIndices) && (selectedNumbers.size === 0 || node.numbers.some(num => selectedNumbers.has(num))));
         const visibleLinks = graphData.links.filter(link => visibleNodes.some(node => node.id === link.source.id) && visibleNodes.some(node => node.id === link.target.id));
         visibleNodes.sort((a, b) => (b.size * nodeSizeFactor) - (a.size * nodeSizeFactor)); // Descending order
-
+    
         const link = g.append('g')
             .attr('class', 'links')
             .selectAll('line')
@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .attr('stroke', '#999')
             .attr('stroke-width', edgesVisible ? 1 : 0) // Initialize stroke-width based on edgesVisible
             .attr('stroke-opacity', edgesVisible ? 1 : 0); // Initialize stroke-opacity based on edgesVisible
-
+    
         const node = g.append('g')
             .attr('class', 'nodes')
             .selectAll('circle')
@@ -382,13 +382,13 @@ document.addEventListener('DOMContentLoaded', function() {
             .on('click', function(event, d) {
                 openNodeDetails(d);
             });
-
+    
         node.append('title')
             .text(d => `Group: ${d.id}\nNumbers: ${d.numbers.join(', ')}`);
-
+    
         node.attr('stroke', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 'black' : 'none')
             .attr('stroke-width', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 0 : 0);
-
+    
         // Apply transitions only when requested
         if (useTransitions) {
             node.transition()
@@ -397,23 +397,24 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             node.attr('r', d => d.size * nodeSizeFactor); // Set size immediately
         }
-
+    
         // Apply the graph size factor only for the force layout
         if (layout === 'force') {
             g.attr('transform', `translate(${centerX}, ${centerY}) scale(${graphSizeFactor}) translate(${-centerX}, ${-centerY})`);
         } else {
             g.attr('transform', null);
         }
-
+    
         // Update node and link positions for non-force layouts
         link.attr('x1', d => d.source.x)
             .attr('y1', d => d.source.y)
             .attr('x2', d => d.target.x)
             .attr('y2', d => d.target.y);
-
+    
         node.attr('cx', d => d.x)
             .attr('cy', d => d.y);
     }
+    
 
     function updateVennDiagram() {
         d3.select("#network-graph svg").selectAll("*").remove();
@@ -467,9 +468,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 numbersInGroups.set(number, color(node.id));
             });
         });
-
+    
         numberGrid.selectAll('.number-box').remove();
-
+    
         const numberBox = numberGrid.selectAll('.number-box')
             .data([...allNumbers, 'X', 'Edges']) // Add 'X' for reset button and 'Edges' for toggle
             .enter().append('div')
@@ -488,13 +489,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
     }
-
+    
     function toggleEdges() {
         edgesVisible = !edgesVisible;
         g.selectAll('.links line')
             .attr('stroke-width', edgesVisible ? 1 : 0)
-            .attr('stroke-opacity', edgesVisible ? 1 : 0); // Ensure opacity is also toggled
+            .attr('stroke-opacity', edgesVisible ? 1 : 0);
     }
+    
 
     function highlightAssociatedNumbers(numbers) {
         const associatedNumbers = new Set(numbers);
