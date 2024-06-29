@@ -492,11 +492,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function toggleEdges() {
         edgesVisible = !edgesVisible;
-        console.log(`Toggling edges, new visibility: ${edgesVisible}`);
-        g.selectAll('.links line')
-            .attr('stroke-width', edgesVisible ? 1 : 0)
-            .attr('stroke-opacity', edgesVisible ? 1 : 0);
+        const lines = g.selectAll('.links line');
+        console.log('Selected lines:', lines.nodes());
+        lines.attr('stroke-width', edgesVisible ? 1 : 0)
+             .attr('stroke-opacity', edgesVisible ? 1 : 0);
     }
+    
     
     function highlightAssociatedNumbers(numbers) {
         const associatedNumbers = new Set(numbers);
