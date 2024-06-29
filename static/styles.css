@@ -17,7 +17,7 @@
 
 .links line {
     stroke: #999999b1;
-    stroke-opacity: 0;
+    stroke-opacity: 1;
 }
 
 .number-box {
