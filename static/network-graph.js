@@ -363,10 +363,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 .on('end', dragended))
             .on('mouseover', function(event, d) {
                 highlightAssociatedNumbers(d.numbers);
-                d3.select(this).attr('stroke', 'white').attr('stroke-width', 4);
+                d3.select(this).attr('stroke', 'white').attr('stroke-width', 4) .style('stroke-opacity', 0.5);
                 g.selectAll('circle')
                     .filter(n => n.numbers.some(num => d.numbers.includes(num)) && n !== d)
                     .attr('stroke', 'white')
+                    .style('stroke-opacity', 0.5)
                     .attr('stroke-width', 4);
             })
             .on('mouseout', function(event, d) {
