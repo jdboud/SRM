@@ -6,8 +6,6 @@
 }
 
 .nodes circle {
-   /* stroke: #fff;
-    stroke-width: 0px;*/
     fill-opacity: 70%;
 }
 
@@ -18,7 +16,7 @@
 .links line {
     stroke: #999999b1;
     stroke-width: 1px;
-    stroke-opacity: 1;
+    stroke-opacity: 0; /* Initialize with edges hidden */
 }
 
 .number-box {
@@ -69,7 +67,7 @@
 .noUi-handle {
     box-shadow: none; /* This removes the shadow */
     background-color: #ffffff; /* Handle color */
-    border-radius:0%;
+    border-radius: 0%;
     border: 0.5px solid #c5c5c5; /* Handle border color */
     cursor: pointer;
     width: 20px; /* Set the width of the handle */
@@ -171,6 +169,7 @@ label {
     line-height: 30px;
     margin: 2px;
 }
+
 /*.toggle-button {
     width: 100px;
     height: 30px;
@@ -189,6 +188,7 @@ label {
     border-color: #888;
 }
 */
+
 .slider-container {
     display: flex;
     justify-content: space-between;
