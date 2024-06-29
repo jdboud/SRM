@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let maxIndices = 100;
     let nodeSizeFactor = 1; // Initial node size factor
     let graphSizeFactor = 1; // Initial graph size factor
+    let edgesVisible = true; // Initialize edge visibility
 
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -347,8 +348,9 @@ document.addEventListener('DOMContentLoaded', function() {
             .selectAll('line')
             .data(visibleLinks)
             .enter().append('line')
-           // .attr('stroke-width', d => d.weight)
-            .attr('stroke', '#999');
+            .attr('stroke-width', d => edgesVisible ? d.weight : 0)
+            .attr('stroke', '#999')
+            .attr('stroke-opacity', edgesVisible ? 1 : 0);
 
         const node = g.append('g')
             .attr('class', 'nodes')
@@ -363,7 +365,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .on('end', dragended))
             .on('mouseover', function(event, d) {
                 highlightAssociatedNumbers(d.numbers);
-                d3.select(this).attr('stroke', 'white').attr('stroke-width', 6) .style('stroke-opacity', 0.8);
+                d3.select(this).attr('stroke', 'white').attr('stroke-width', 6).style('stroke-opacity', 0.8);
                 g.selectAll('circle')
                     .filter(n => n.numbers.some(num => d.numbers.includes(num)) && n !== d)
                     .attr('stroke', 'white')
