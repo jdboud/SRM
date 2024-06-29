@@ -170,6 +170,23 @@ label {
     line-height: 30px;
     margin: 2px;
 }
+.toggle-button {
+    width: 100px;
+    height: 30px;
+    background-color: #f4ce65;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin: 10px 0;
+}
+
+.toggle-button.active {
+    background-color: #ddd;
+    border-color: #888;
+}
 
 .slider-container {
     display: flex;
