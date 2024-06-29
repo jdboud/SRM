@@ -496,7 +496,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function toggleEdges() {
         edgesVisible = !edgesVisible;
         g.selectAll('.links line')
-            .attr('stroke-width', d => edgesVisible ? d.weight : 0)
+            .attr('stroke-width', d => edgesVisible ? d.weight : 0);
      //       .attr('stroke-opacity', edgesVisible ? 1 : 0);
     }
     
