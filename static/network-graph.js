@@ -473,23 +473,30 @@ document.addEventListener('DOMContentLoaded', function() {
         numberGrid.selectAll('.number-box').remove();
 
         const numberBox = numberGrid.selectAll('.number-box')
-            .data([...allNumbers, 'X']) // Add 'X' for reset button
+            .data([...allNumbers, 'X', 'Edges']) // Add 'X' for reset button and 'Edges' for toggle
             .enter().append('div')
             .attr('class', 'number-box')
-            .style('fill', d => d === 'X' ? '#f4ce65' : '#39ea7d') // Orange fill for 'X', light gray for others
+            .style('fill', d => d === 'X' ? '#f4ce65' : (d === 'Edges' ? '#e0e0e0' : '#39ea7d')) // Orange fill for 'X', grey for 'Edges', light gray for others
             .style('background-color', d => d === 'X' ? '#ffffff' : (numbersInGroups.has(d) ? '#e0e0e0' : '#ffffff')) // Grey selectable numbers
-            .style('border', d => d === 'X' ? '4px solid #f4ce65' : '1px solid #e0e0e0') // Orange border for 'X', light gray for others
-
+            .style('border', d => d === 'X' ? '4px solid #f4ce65' : (d === 'Edges' ? '4px solid #e0e0e0' : '1px solid #e0e0e0')) // Orange border for 'X', grey for 'Edges', light gray for others
             .text(d => d)
             .on('click', function(event, d) {
                 if (d === 'X') {
                     resetSelection();
+                } else if (d === 'Edges') {
+                    toggleEdges();
                 } else if (numbersInGroups.has(d)) {
                     toggleNumberSelection(d);
                 }
             });
     }
 
+    function toggleEdges() {
+        edgesVisible = !edgesVisible;
+        g.selectAll('.links line')
+            .attr('stroke-width', d => edgesVisible ? d.weight : 0)
+            .attr('stroke', edgesVisible ? '#999' : 'none');
+    }
     function highlightAssociatedNumbers(numbers) {
         const associatedNumbers = new Set(numbers);
         graphData.nodes.forEach(node => {
