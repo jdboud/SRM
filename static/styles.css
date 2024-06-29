@@ -15,7 +15,7 @@
 
 .links line {
     stroke: #999999b1;
-    stroke-width: 1px;
+    stroke-width: 0px;
     stroke-opacity: 0; /* Initialize with edges hidden */
 }
 
