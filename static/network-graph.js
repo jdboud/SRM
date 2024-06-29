@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .enter().append('line')
             .attr('stroke-width', d => edgesVisible ? d.weight : 0)
             .attr('stroke', '#999')
-            .attr('stroke-opacity', edgesVisible ? 1 : 0);
+            .attr('stroke-opacity', edgesVisible ? 0.8 : 0);
 
         const node = g.append('g')
             .attr('class', 'nodes')
