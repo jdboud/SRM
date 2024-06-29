@@ -15,8 +15,8 @@
 
 .links line {
     stroke: #999999b1;
-    stroke-width: 1px;
-    stroke-opacity: 1; /* Initialize with edges hidden */
+    stroke-width: 0px;
+    stroke-opacity: 0; /* Initialize with edges hidden */
 }
 
 .number-box {
@@ -136,18 +136,19 @@
 }
 
 #node-size-factor,
-#edge-length-factor {
+/*#edge-length-factor {
     width: 35px;
     height: 15px;
     margin-top: 4px; /* Space above the element */
-    margin-bottom: 4px; /* Space below the element */
-    padding: 4px; /* Space inside the element */
-    font-family: Arial, sans-serif; /* Change the font */
-    color: #3a3939; /* Change the text color */
-    font-size: 0px; /* Size of the text */
-    border-radius: 0px; /* Rounded corners */
-    border: 0px solid #b2b0b0; /* Border around the element */
+   /* margin-bottom: 4px; /* Space below the element 
+    padding: 4px; /* Space inside the element 
+    font-family: Arial, sans-serif; /* Change the font 
+    color: #3a3939; /* Change the text color 
+    font-size: 0px; /* Size of the text 
+    border-radius: 0px; /* Rounded corners 
+    border: 0px solid #b2b0b0; /* Border around the element 
 }
+*/
 
 label {
     margin-top: 4px; /* Space above the element */
