@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let maxIndices = 100;
     let nodeSizeFactor = 1; // Initial node size factor
     let graphSizeFactor = 1; // Initial graph size factor
-    let edgesVisible = false; // Initialize with edges hidden
+    let edgesVisible = true; // Flag to track edges visibility
 
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
