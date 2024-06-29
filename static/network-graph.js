@@ -373,11 +373,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 .on('end', dragended))
             .on('mouseover', function(event, d) {
                 highlightAssociatedNumbers(d.numbers);
-                d3.select(this).attr('stroke', 'white').attr('stroke-width', 6) .style('stroke-opacity', 0.9);
+                d3.select(this).attr('stroke', 'white').attr('stroke-width', 6) .style('stroke-opacity', 2);
                 g.selectAll('circle')
                     .filter(n => n.numbers.some(num => d.numbers.includes(num)) && n !== d)
                     .attr('stroke', 'white')
-                    .style('stroke-opacity', 0.9)
+                    .style('stroke-opacity', 2)
                     .attr('stroke-width', 6);
             })
             .on('mouseout', function(event, d) {
