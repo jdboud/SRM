@@ -363,9 +363,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 .on('end', dragended))
             .on('mouseover', function(event, d) {
                 highlightAssociatedNumbers(d.numbers);
+                d3.select(this).attr('stroke', 'white').attr('stroke-width', 2);
+                g.selectAll('circle')
+                    .filter(n => n.numbers.some(num => d.numbers.includes(num)) && n !== d)
+                    .attr('stroke', 'white')
+                    .attr('stroke-width', 2);
             })
             .on('mouseout', function(event, d) {
                 highlightAssociatedNumbers(Array.from(selectedNumbers));
+                d3.select(this).attr('stroke', null).attr('stroke-width', null);
+                g.selectAll('circle')
+                    .filter(n => n.numbers.some(num => d.numbers.includes(num)) && n !== d)
+                    .attr('stroke', null)
+                    .attr('stroke-width', null);
             })
             .on('click', function(event, d) {
                 openNodeDetails(d);
