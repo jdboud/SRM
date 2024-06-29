@@ -367,7 +367,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 g.selectAll('circle')
                     .filter(n => n.numbers.some(num => d.numbers.includes(num)) && n !== d)
                     .attr('stroke', 'white')
-                    .attr('stroke-width', 2);
+                    .attr('stroke-width', 20);
             })
             .on('mouseout', function(event, d) {
                 highlightAssociatedNumbers(Array.from(selectedNumbers));
@@ -451,7 +451,7 @@ document.addEventListener('DOMContentLoaded', function() {
         d3.selectAll(".venn-circle path")
             .style("fill-opacity", 0.5)
             .style("stroke", "#fff")
-            .style("stroke-width", 2);
+            .style("stroke-width", 0);
 
         // Add labels
         d3.selectAll(".venn-circle text")
