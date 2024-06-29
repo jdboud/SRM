@@ -348,7 +348,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .selectAll('line')
             .data(visibleLinks)
             .enter().append('line')
-            .attr('stroke-width', d => edgesVisible ? d.weight : 0)
+            .attr('stroke-width', d => edgesVisible ? d.weight : 10)
             .attr('stroke', '#999')
             .attr('stroke-opacity', edgesVisible ? 1 : 0);
 
