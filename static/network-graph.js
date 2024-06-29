@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let maxIndices = 100;
     let nodeSizeFactor = 1; // Initial node size factor
     let graphSizeFactor = 1; // Initial graph size factor
-    let edgesVisible = false; // Initialize with edges hidden
+    let edgesVisible = false; // Initialize edges as hidden
 
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -176,7 +176,67 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Process the embedded data
     function processData(data) {
-        // Process the data...
+        const df = {};
+        data.forEach((row, i) => {
+            row.forEach((val, j) => {
+                if (val === 1) {
+                    if (!df[j + 1]) {
+                        df[j + 1] = [];
+                    }
+                    df[j + 1].push(i + 1);
+                }
+            });
+        });
+
+        const userCollections = Object.entries(df).reduce((acc, [key, value]) => {
+            acc[key] = new Set(value);
+            return acc;
+        }, {});
+
+        const commonGroups = {};
+        for (const [user1, indices1] of Object.entries(userCollections)) {
+            for (const [user2, indices2] of Object.entries(userCollections)) {
+                if (user1 !== user2) {
+                    const commonIndices = [...indices1].filter(x => indices2.has(x));
+                    if (commonIndices.length >= 2) {
+                        const sortedCommon = commonIndices.sort((a, b) => a - b).join(',');
+                        if (!commonGroups[sortedCommon]) {
+                            commonGroups[sortedCommon] = new Set();
+                        }
+                        commonGroups[sortedCommon].add(user1);
+                        commonGroups[sortedCommon].add(user2);
+                    }
+                }
+            }
+        }
+
+        const G = { nodes: [], links: [] };
+        let groupID = 1;
+        for (const [indices, users] of Object.entries(commonGroups)) {
+            G.nodes.push({
+                id: `Group ${groupID++}`,
+                numbers: indices.split(',').map(Number),
+                size: 10 + (indices.split(',').length - 2)
+            });
+        }
+
+        const nodes = G.nodes.map(n => n.id);
+        for (const node of G.nodes) {
+            for (const node2 of G.nodes) {
+                if (node !== node2) {
+                    const sharedNumbers = node.numbers.filter(num => node2.numbers.includes(num));
+                    if (sharedNumbers.length > 0) {
+                        G.links.push({
+                            source: node.id,
+                            target: node2.id,
+                            weight: sharedNumbers.length
+                        });
+                    }
+                }
+            }
+        }
+
+        return G;
     }
 
     graphData = processData(data);
