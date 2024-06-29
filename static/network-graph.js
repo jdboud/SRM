@@ -174,8 +174,8 @@ document.addEventListener('DOMContentLoaded', function() {
         [0, 1, 0, 1, 0, 0, 0, 0, 0, 0]
     ];
 
-     // Process the embedded data
-     function processData(data) {
+    // Process the embedded data
+    function processData(data) {
         const df = {};
         data.forEach((row, i) => {
             row.forEach((val, j) => {
@@ -348,9 +348,8 @@ document.addEventListener('DOMContentLoaded', function() {
             .selectAll('line')
             .data(visibleLinks)
             .enter().append('line')
-            .attr('stroke', '#999')
-            .attr('stroke-width', edgesVisible ? 1 : 0) // Initialize stroke-width based on edgesVisible
-            .attr('stroke-opacity', edgesVisible ? 1 : 0); // Initialize stroke-opacity based on edgesVisible
+           // .attr('stroke-width', d => d.weight)
+            .attr('stroke', '#999');
 
         const node = g.append('g')
             .attr('class', 'nodes')
@@ -493,7 +492,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-   function toggleEdges() {
+    function toggleEdges() {
         edgesVisible = !edgesVisible;
         g.selectAll('.links line')
             .attr('stroke-width', d => edgesVisible ? d.weight : 0)
