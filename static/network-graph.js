@@ -21,19 +21,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const nodeSizeFactorInput = document.getElementById('node-size-factor');
     const edgeLengthFactorInput = document.getElementById('edge-length-factor');
     const numberGrid = d3.select('#number-grid');
-    const toggleEdgesButton = document.getElementById('toggle-edges');
 
     layoutDropdown.addEventListener('change', updateGraph);
     nodeSizeFactorInput.addEventListener('input', updateGraph);
     edgeLengthFactorInput.addEventListener('input', updateGraph);
-    toggleEdgesButton.addEventListener('click', toggleEdges);
 
     let graphData = { nodes: [], links: [] };
     let selectedNumbers = new Set();
     let maxIndices = 100;
     let nodeSizeFactor = 1; // Initial node size factor
     let graphSizeFactor = 1; // Initial graph size factor
-    let edgesVisible = true; // Initial state of edges
 
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -74,12 +71,6 @@ document.addEventListener('DOMContentLoaded', function() {
         graphSizeFactor = values[handle];
         updateGraph(true); // Pass true to use transitions
     });
-
-    function toggleEdges() {
-        edgesVisible = !edgesVisible;
-        toggleEdgesButton.classList.toggle('active', edgesVisible);
-        updateGraph();
-    }
 
     // Embed the Excel data directly in the script
     const data = [
@@ -356,9 +347,8 @@ document.addEventListener('DOMContentLoaded', function() {
             .selectAll('line')
             .data(visibleLinks)
             .enter().append('line')
-            .attr('stroke-width', d => edgesVisible ? d.weight : 0)
-            .attr('stroke', '#999')
-            .attr('stroke-opacity', edgesVisible ? 1 : 0);
+           // .attr('stroke-width', d => d.weight)
+            .attr('stroke', '#999');
 
         const node = g.append('g')
             .attr('class', 'nodes')
@@ -373,11 +363,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 .on('end', dragended))
             .on('mouseover', function(event, d) {
                 highlightAssociatedNumbers(d.numbers);
-                d3.select(this).attr('stroke', 'white').attr('stroke-width', 6) .style('stroke-opacity', 2);
+                d3.select(this).attr('stroke', 'white').attr('stroke-width', 6) .style('stroke-opacity', 0.9);
                 g.selectAll('circle')
                     .filter(n => n.numbers.some(num => d.numbers.includes(num)) && n !== d)
                     .attr('stroke', 'white')
-                    .style('stroke-opacity', 2)
+                    .style('stroke-opacity', 0.9)
                     .attr('stroke-width', 6);
             })
             .on('mouseout', function(event, d) {
@@ -392,11 +382,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 openNodeDetails(d);
             });
 
-            node.append('title')
+        node.append('title')
             .text(d => `Group: ${d.id}\nNumbers: ${d.numbers.join(', ')}`);
 
         node.attr('stroke', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 'black' : 'none')
-            .attr('stroke-width', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 3 : 0);
+            .attr('stroke-width', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 0 : 0);
 
         // Apply transitions only when requested
         if (useTransitions) {
@@ -461,8 +451,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Style the circles
         d3.selectAll(".venn-circle path")
             .style("fill-opacity", 0.5)
-            .style("stroke", "#fff")
-            .style("stroke-width", 2);
+            //.style("stroke", "#fff")
+           // .style("stroke-width", 0);
 
         // Add labels
         d3.selectAll(".venn-circle text")
