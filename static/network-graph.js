@@ -386,7 +386,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .text(d => `Group: ${d.id}\nNumbers: ${d.numbers.join(', ')}`);
 
         node.attr('stroke', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 'black' : 'none')
-            .attr('stroke-width', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 3 : 0);
+            .attr('stroke-width', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 0 : 0);
 
         // Apply transitions only when requested
         if (useTransitions) {
