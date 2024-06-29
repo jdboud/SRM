@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let maxIndices = 100;
     let nodeSizeFactor = 1; // Initial node size factor
     let graphSizeFactor = 1; // Initial graph size factor
-    let edgesVisible = true; // Flag to track edges visibility
+    let edgesVisible = false; // Initialize with edges hidden
 
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -176,67 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Process the embedded data
     function processData(data) {
-        const df = {};
-        data.forEach((row, i) => {
-            row.forEach((val, j) => {
-                if (val === 1) {
-                    if (!df[j + 1]) {
-                        df[j + 1] = [];
-                    }
-                    df[j + 1].push(i + 1);
-                }
-            });
-        });
-
-        const userCollections = Object.entries(df).reduce((acc, [key, value]) => {
-            acc[key] = new Set(value);
-            return acc;
-        }, {});
-
-        const commonGroups = {};
-        for (const [user1, indices1] of Object.entries(userCollections)) {
-            for (const [user2, indices2] of Object.entries(userCollections)) {
-                if (user1 !== user2) {
-                    const commonIndices = [...indices1].filter(x => indices2.has(x));
-                    if (commonIndices.length >= 2) {
-                        const sortedCommon = commonIndices.sort((a, b) => a - b).join(',');
-                        if (!commonGroups[sortedCommon]) {
-                            commonGroups[sortedCommon] = new Set();
-                        }
-                        commonGroups[sortedCommon].add(user1);
-                        commonGroups[sortedCommon].add(user2);
-                    }
-                }
-            }
-        }
-
-        const G = { nodes: [], links: [] };
-        let groupID = 1;
-        for (const [indices, users] of Object.entries(commonGroups)) {
-            G.nodes.push({
-                id: `Group ${groupID++}`,
-                numbers: indices.split(',').map(Number),
-                size: 10 + (indices.split(',').length - 2)
-            });
-        }
-
-        const nodes = G.nodes.map(n => n.id);
-        for (const node of G.nodes) {
-            for (const node2 of G.nodes) {
-                if (node !== node2) {
-                    const sharedNumbers = node.numbers.filter(num => node2.numbers.includes(num));
-                    if (sharedNumbers.length > 0) {
-                        G.links.push({
-                            source: node.id,
-                            target: node2.id,
-                            weight: sharedNumbers.length
-                        });
-                    }
-                }
-            }
-        }
-
-        return G;
+        // Process the data...
     }
 
     graphData = processData(data);
@@ -348,8 +288,9 @@ document.addEventListener('DOMContentLoaded', function() {
             .selectAll('line')
             .data(visibleLinks)
             .enter().append('line')
-           // .attr('stroke-width', d => d.weight)
-            .attr('stroke', '#999');
+            .attr('stroke', '#999')
+            .attr('stroke-width', edgesVisible ? 1 : 0) // Initialize stroke-width based on edgesVisible
+            .attr('stroke-opacity', edgesVisible ? 1 : 0); // Initialize stroke-opacity based on edgesVisible
 
         const node = g.append('g')
             .attr('class', 'nodes')
@@ -364,7 +305,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .on('end', dragended))
             .on('mouseover', function(event, d) {
                 highlightAssociatedNumbers(d.numbers);
-                d3.select(this).attr('stroke', 'white').attr('stroke-width', 6) .style('stroke-opacity', 0.8);
+                d3.select(this).attr('stroke', 'white').attr('stroke-width', 6).style('stroke-opacity', 0.8);
                 g.selectAll('circle')
                     .filter(n => n.numbers.some(num => d.numbers.includes(num)) && n !== d)
                     .attr('stroke', 'white')
@@ -424,8 +365,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Prepare Venn diagram data
         const sets = [];
         const overlaps = [];
-        /* console.log('Graph Data:', graphData); // Debug statement to print the data in the browser console*/
-        console.log('Venn Data:', vennData); // Debug statement to print the Venn data in the browser console
+        console.log('Graph Data:', graphData); // Debug statement to print the data in the browser console
 
         // Create sets based on node groups
         graphData.nodes.forEach((node, index) => {
@@ -451,9 +391,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Style the circles
         d3.selectAll(".venn-circle path")
-            .style("fill-opacity", 0.5)
-            //.style("stroke", "#fff")
-           // .style("stroke-width", 0);
+            .style("fill-opacity", 0.5);
 
         // Add labels
         d3.selectAll(".venn-circle text")
@@ -495,10 +433,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function toggleEdges() {
         edgesVisible = !edgesVisible;
         g.selectAll('.links line')
-            .attr('stroke-width', d => edgesVisible ? d.weight : 0)
-            .attr('stroke-opacity', edgesVisible ? 1 : 0);
+            .attr('stroke-width', edgesVisible ? 1 : 0)
+            .attr('stroke-opacity', edgesVisible ? 1 : 0); // Ensure opacity is also toggled
     }
-    
+
     function highlightAssociatedNumbers(numbers) {
         const associatedNumbers = new Set(numbers);
         graphData.nodes.forEach(node => {
