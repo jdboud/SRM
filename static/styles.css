@@ -17,6 +17,7 @@
 
 .links line {
     stroke: #999999b1;
+    stroke-width: 6%px;
     stroke-opacity: 1;
 }
 
