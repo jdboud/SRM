@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const nodeSizeFactorInput = document.getElementById('node-size-factor');
     const edgeLengthFactorInput = document.getElementById('edge-length-factor');
     const numberGrid = d3.select('#number-grid');
-    const toggleEdgesButton = document.getElementById('toggle-edges-button'); // Button element
 
     layoutDropdown.addEventListener('change', updateGraph);
     nodeSizeFactorInput.addEventListener('input', updateGraph);
@@ -497,7 +496,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function toggleEdges() {
         edgesVisible = !edgesVisible;
         g.selectAll('.links line')
-            .attr('stroke-width', d => edgesVisible ? d.weight : 0);
+            .attr('stroke-width', d => edgesVisible ? d.weight : 0)
      //       .attr('stroke-opacity', edgesVisible ? 1 : 0);
     }
     
