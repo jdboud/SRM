@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .attr('width', '100%')
         .attr('height', '500px');
 
-    const g = svg.append('g'); // Create a group element for graph content
+    const g = svg.append('g');
     svg.call(d3.zoom().on('zoom', zoomed));
 
     const heatmapContainer = d3.select('#heatmap').append('svg')
@@ -16,22 +16,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const layoutDropdown = document.getElementById('layout-dropdown');
     const numbersRangeSlider = document.getElementById('numbers-range-slider');
-    const nodeSizeSlider = document.getElementById('node-size-slider'); // Node size slider element
-    const graphSizeSlider = document.getElementById('graph-size-slider'); // New slider element
+    const nodeSizeSlider = document.getElementById('node-size-slider');
+    const graphSizeSlider = document.getElementById('graph-size-slider');
     const nodeSizeFactorInput = document.getElementById('node-size-factor');
     const edgeLengthFactorInput = document.getElementById('edge-length-factor');
     const numberGrid = d3.select('#number-grid');
+    const homeButton = document.getElementById('home-button');
+    const mainPage = document.getElementById('main-page');
+    const numberDisplayPage = document.getElementById('number-display-page');
 
     layoutDropdown.addEventListener('change', updateGraph);
     nodeSizeFactorInput.addEventListener('input', updateGraph);
     edgeLengthFactorInput.addEventListener('input', updateGraph);
 
+    homeButton.addEventListener('click', () => {
+        mainPage.style.display = 'block';
+        numberDisplayPage.style.display = 'none';
+    });
+
     let graphData = { nodes: [], links: [] };
     let selectedNumbers = new Set();
     let maxIndices = 100;
-    let nodeSizeFactor = 1; // Initial node size factor
-    let graphSizeFactor = 1; // Initial graph size factor
-    let edgesVisible = false; // Initialize edges as invisible
+    let nodeSizeFactor = 1;
+    let graphSizeFactor = 1;
+    let edgesVisible = false;
 
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -44,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    noUiSlider.create(nodeSizeSlider, { // Initialize the node size slider
+    noUiSlider.create(nodeSizeSlider, {
         start: [4],
         range: {
             'min': 0.1,
@@ -53,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
         step: 0.1
     });
 
-    noUiSlider.create(graphSizeSlider, { // Initialize the graph size slider
+    noUiSlider.create(graphSizeSlider, {
         start: [1],
         range: {
             'min': 0.6,
@@ -65,13 +73,14 @@ document.addEventListener('DOMContentLoaded', function() {
     numbersRangeSlider.noUiSlider.on('update', updateGraph);
     nodeSizeSlider.noUiSlider.on('update', function(values, handle) {
         nodeSizeFactor = values[handle];
-        updateGraph(true); // Pass true to use transitions
+        updateGraph(true);
     });
 
     graphSizeSlider.noUiSlider.on('update', function(values, handle) {
         graphSizeFactor = values[handle];
-        updateGraph(true); // Pass true to use transitions
+        updateGraph(true);
     });
+
     // Embed the Excel data directly in the script
     const data = [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -148,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -173,7 +182,6 @@ document.addEventListener('DOMContentLoaded', function() {
         [0, 1, 0, 1, 0, 0, 0, 0, 0, 0]
     ];
 
-    // Process the embedded data
     function processData(data) {
         const df = {};
         data.forEach((row, i) => {
@@ -248,39 +256,39 @@ document.addEventListener('DOMContentLoaded', function() {
         const layout = layoutDropdown.value;
         const edgeLengthFactor = edgeLengthFactorInput.value;
         const [minIndices, maxIndices] = numbersRangeSlider.noUiSlider.get().map(Number);
-    
+
         svg.style('display', layout === 'heatmap' || layout === 'euler' ? 'none' : 'block');
         heatmapContainer.style('display', layout === 'heatmap' ? 'block' : 'none');
         eulerContainer.style('display', layout === 'euler' ? 'block' : 'none');
-    
+
         if (layout === 'heatmap') {
             updateHeatmap();
             return;
         }
-    
+
         if (layout === 'euler') {
             updateEulerDiagram();
             return;
         }
-    
+
         if (layout === 'venn') {
             updateVennDiagram();
             return;
         }
-    
+
         g.selectAll('*').remove();
-    
+
         const width = svg.node().getBoundingClientRect().width;
         const height = svg.node().getBoundingClientRect().height;
-    
+
         const centerX = width / 2;
         const centerY = height / 2;
-    
+
         function boundNode(node) {
             node.x = Math.max(node.size * nodeSizeFactor, Math.min(width - node.size * nodeSizeFactor, node.x));
             node.y = Math.max(node.size * nodeSizeFactor, Math.min(height - node.size * nodeSizeFactor, node.y));
         }
-    
+
         if (layout === 'circular') {
             const angleStep = (2 * Math.PI) / graphData.nodes.length;
             graphData.nodes.forEach((node, i) => {
@@ -332,90 +340,116 @@ document.addEventListener('DOMContentLoaded', function() {
                     node.attr('cx', d => d.x)
                         .attr('cy', d => d.y);
                 });
-    
-            // Update the forces
+
             simulation.force('link').links(graphData.links);
         }
-    
-        // Sort nodes by size in descending order to ensure smaller nodes are drawn last (on top)
+
         const visibleNodes = graphData.nodes.filter(node => (node.numbers.length >= minIndices && node.numbers.length <= maxIndices) && (selectedNumbers.size === 0 || node.numbers.some(num => selectedNumbers.has(num))));
         const visibleLinks = graphData.links.filter(link => visibleNodes.some(node => node.id === link.source.id) && visibleNodes.some(node => node.id === link.target.id));
-        visibleNodes.sort((a, b) => (b.size * nodeSizeFactor) - (a.size * nodeSizeFactor)); // Descending order
-    
+        visibleNodes.sort((a, b) => (b.size * nodeSizeFactor) - (a.size * nodeSizeFactor));
+
         const link = g.append('g')
             .attr('class', 'links')
             .selectAll('line')
             .data(visibleLinks)
             .enter().append('line')
             .attr('stroke', '#999')
-            .attr('stroke-width', edgesVisible ? 1 : 0) // Initialize stroke-width based on edgesVisible
-            .attr('stroke-opacity', edgesVisible ? 1 : 0); // Initialize stroke-opacity based on edgesVisible
-            console.log('Links created:', g.selectAll('.links line').nodes());
+            .attr('stroke-width', edgesVisible ? 1 : 0)
+            .attr('stroke-opacity', edgesVisible ? 1 : 0);
 
         const node = g.append('g')
             .attr('class', 'nodes')
             .selectAll('circle')
             .data(visibleNodes)
             .enter().append('circle')
-            .attr('r', d => d.size * nodeSizeFactor) // Set the size immediately
+            .attr('r', d => d.size * nodeSizeFactor)
             .attr('fill', d => color(d.id))
             .call(d3.drag()
                 .on('start', dragstarted)
                 .on('drag', dragged)
                 .on('end', dragended))
-            .on('mouseover', function(event, d) {
-                highlightAssociatedNumbers(d.numbers);
-                d3.select(this).attr('stroke', 'white').attr('stroke-width', 6).style('stroke-opacity', 0.8);
-                g.selectAll('circle')
-                    .filter(n => n.numbers.some(num => d.numbers.includes(num)) && n !== d)
-                    .attr('stroke', 'white')
-                    .style('stroke-opacity', 0.8)
-                    .attr('stroke-width', 6);
-            })
-            .on('mouseout', function(event, d) {
-                highlightAssociatedNumbers(Array.from(selectedNumbers));
-                d3.select(this).attr('stroke', null).attr('stroke-width', null);
-                g.selectAll('circle')
-                    .filter(n => n.numbers.some(num => d.numbers.includes(num)) && n !== d)
-                    .attr('stroke', null)
-                    .attr('stroke-width', null);
-            })
             .on('click', function(event, d) {
+                highlightAssociatedNumbers(d.numbers);
                 openNodeDetails(d);
             });
-    
+
         node.append('title')
             .text(d => `Group: ${d.id}\nNumbers: ${d.numbers.join(', ')}`);
-    
+
         node.attr('stroke', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 'black' : 'none')
             .attr('stroke-width', d => selectedNumbers.size > 0 && d.numbers.some(num => selectedNumbers.has(num)) ? 0 : 0);
-    
-        // Apply transitions only when requested
+
         if (useTransitions) {
             node.transition()
-                .duration(500) // Duration in milliseconds
-                .attr('r', d => d.size * nodeSizeFactor); // Grow to target size
+                .duration(500)
+                .attr('r', d => d.size * nodeSizeFactor);
         } else {
-            node.attr('r', d => d.size * nodeSizeFactor); // Set size immediately
+            node.attr('r', d => d.size * nodeSizeFactor);
         }
-    
-        // Apply the graph size factor only for the force layout
+
         if (layout === 'force') {
             g.attr('transform', `translate(${centerX}, ${centerY}) scale(${graphSizeFactor}) translate(${-centerX}, ${-centerY})`);
         } else {
             g.attr('transform', null);
         }
-    
-        // Update node and link positions for non-force layouts
+
         link.attr('x1', d => d.source.x)
             .attr('y1', d => d.source.y)
             .attr('x2', d => d.target.x)
             .attr('y2', d => d.target.y);
-    
+
         node.attr('cx', d => d.x)
             .attr('cy', d => d.y);
     }
-    
+
+    function updateThumbnails(numbers) {
+        const thumbnails = d3.select('#thumbnails');
+        thumbnails.selectAll('*').remove();
+
+        numbers.forEach(number => {
+            thumbnails.append('div')
+                .attr('class', 'thumbnail')
+                .style('width', '100%')
+                .style('height', '30px')
+                .style('margin', '5px 0')
+                .style('display', 'flex')
+                .style('align-items', 'center')
+                .style('justify-content', 'center')
+                .style('border', '1px solid #ccc')
+                .style('background', '#fff')
+                .text(number)
+                .on('click', () => {
+                    displayNumberPage(number, numbers);
+                });
+        });
+    }
+
+    function openNodeDetails(node) {
+        updateThumbnails(node.numbers);
+    }
+
+    function displayNumberPage(number, numbers) {
+        mainPage.style.display = 'none';
+        numberDisplayPage.style.display = 'flex';
+
+        const numberDisplay = document.getElementById('number');
+        numberDisplay.textContent = number;
+
+        const prevButton = document.getElementById('prev-number');
+        const nextButton = document.getElementById('next-number');
+
+        prevButton.onclick = () => {
+            const currentIndex = numbers.indexOf(number);
+            const prevIndex = (currentIndex - 1 + numbers.length) % numbers.length;
+            displayNumberPage(numbers[prevIndex], numbers);
+        };
+
+        nextButton.onclick = () => {
+            const currentIndex = numbers.indexOf(number);
+            const nextIndex = (currentIndex + 1) % numbers.length;
+            displayNumberPage(numbers[nextIndex], numbers);
+        };
+    }
 
     function updateVennDiagram() {
         d3.select("#network-graph svg").selectAll("*").remove();
@@ -423,38 +457,27 @@ document.addEventListener('DOMContentLoaded', function() {
         const width = svg.node().getBoundingClientRect().width;
         const height = svg.node().getBoundingClientRect().height;
 
-        // Prepare Venn diagram data
         const sets = [];
         const overlaps = [];
-        console.log('Graph Data:', graphData); // Debug statement to print the data in the browser console
 
-        // Create sets based on node groups
         graphData.nodes.forEach((node, index) => {
             sets.push({ sets: [node.id], size: node.numbers.length, label: `Group ${node.id}` });
         });
 
-        // Create overlaps based on links between nodes
         graphData.links.forEach(link => {
             const sourceIndex = graphData.nodes.findIndex(node => node.id === link.source.id);
             const targetIndex = graphData.nodes.findIndex(node => node.id === link.target.id);
             overlaps.push({ sets: [graphData.nodes[sourceIndex].id, graphData.nodes[targetIndex].id], size: link.weight });
         });
 
-        // Combine sets and overlaps
         const vennData = { sets, overlaps };
 
-        // Debugging statements to check data
-        console.log('Venn Data:', vennData);
-
-        // Render Venn diagram
         const chart = venn.VennDiagram().width(width).height(height);
         d3.select("#network-graph svg").datum(vennData).call(chart);
 
-        // Style the circles
         d3.selectAll(".venn-circle path")
             .style("fill-opacity", 0.5);
 
-        // Add labels
         d3.selectAll(".venn-circle text")
             .style("fill", "#000")
             .style("font-size", "12px")
@@ -469,16 +492,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 numbersInGroups.set(number, color(node.id));
             });
         });
-    
+
         numberGrid.selectAll('.number-box').remove();
-    
+
         const numberBox = numberGrid.selectAll('.number-box')
-            .data([...allNumbers, 'X', 'Edges']) // Add 'X' for reset button and 'Edges' for toggle
+            .data([...allNumbers, 'X', 'Edges'])
             .enter().append('div')
             .attr('class', 'number-box')
-            .style('fill', d => d === 'X' ? '#f4ce65' : (d === 'Edges' ? '#e0e0e0' : '#39ea7d')) // Orange fill for 'X', grey for 'Edges', light gray for others
-            .style('background-color', d => d === 'X' ? '#ffffff' : (numbersInGroups.has(d) ? '#e0e0e0' : '#ffffff')) // Grey selectable numbers
-            .style('border', d => d === 'X' ? '4px solid #f4ce65' : (d === 'Edges' ? '4px solid #e0e0e0' : '1px solid #e0e0e0')) // Orange border for 'X', grey for 'Edges', light gray for others
+            .style('fill', d => d === 'X' ? '#f4ce65' : (d === 'Edges' ? '#e0e0e0' : '#39ea7d'))
+            .style('background-color', d => d === 'X' ? '#ffffff' : (numbersInGroups.has(d) ? '#e0e0e0' : '#ffffff'))
+            .style('border', d => d === 'X' ? '4px solid #f4ce65' : (d === 'Edges' ? '4px solid #e0e0e0' : '1px solid #e0e0e0'))
             .text(d => d)
             .on('click', function(event, d) {
                 if (d === 'X') {
@@ -490,16 +513,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
     }
-    
+
     function toggleEdges() {
         edgesVisible = !edgesVisible;
         const lines = g.selectAll('.links line');
-        console.log('Selected lines:', lines.nodes());
         lines.attr('stroke-width', edgesVisible ? 1 : 0)
              .attr('stroke-opacity', edgesVisible ? 1 : 0);
     }
-    
-    
     function highlightAssociatedNumbers(numbers) {
         const associatedNumbers = new Set(numbers);
         graphData.nodes.forEach(node => {
@@ -515,6 +535,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (d === 'X') return '#ffffff';
                 return associatedNumbers.has(d) ? color(graphData.nodes.find(node => node.numbers.includes(d)).id) : (graphData.nodes.some(node => node.numbers.includes(d)) ? '#e0e0e0' : '#ffffff');
             });
+
+        updateThumbnails(Array.from(associatedNumbers));
     }
 
     function resetSelection() {
@@ -522,6 +544,7 @@ document.addEventListener('DOMContentLoaded', function() {
         numberGrid.selectAll('.number-box')
             .style('background-color', d => d === 'X' ? '#ffffff' : (graphData.nodes.some(node => node.numbers.includes(d)) ? '#e0e0e0' : '#ffffff'));
         updateGraph();
+        updateThumbnails([]);
     }
 
     function toggleNumberSelection(number) {
@@ -558,7 +581,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const gridSize = Math.floor(width / 24);
         const legendElementWidth = gridSize * 2;
         const buckets = 9;
-        const colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"]; // alternatively colorbrewer.YlGnBu[9]
+        const colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"];
         const users = d3.range(1, 101);
         const numbers = d3.range(1, 101);
 
@@ -643,10 +666,24 @@ document.addEventListener('DOMContentLoaded', function() {
         legend.exit().remove();
     }
 
+    // Function to simulate 30 clicks on the reset number-box
+    function simulateResetClicks() {
+        const resetBox = numberGrid.selectAll('.number-box').filter(function(d) {
+            return d === 'X';
+        });
+        
+        for (let i = 0; i < 30; i++) {
+            resetBox.dispatch('click');
+        }
+    }
+
     // Process the embedded data immediately after defining the function
     graphData = processData(data);
 
     // Initialize the graph and grid with the processed data
     updateGraph(false);
     updateGrid();
+
+    // Simulate 30 clicks on the reset number-box before displaying the nodes
+    simulateResetClicks();
 });
