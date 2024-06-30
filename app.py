@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, send_from_directory
-import pandas as pd
+import json
 import networkx as nx
 from itertools import combinations
 import os
@@ -8,12 +8,19 @@ app = Flask(__name__, static_url_path='', static_folder='static')
 
 @app.route('/data')
 def get_data():
-    # Load the Excel file
-    file_path = os.path.join(app.root_path, 'data', 'binaryCleanUserNumberCollections1Test024.xlsx')
-    df = pd.read_excel(file_path, index_col=0)
-
+    # Load the JSON file
+    file_path = os.path.join(app.root_path, 'data', 'data.json')
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+    
     # Create user collections from data
-    user_collections = {user: set(df.index[df[user] == 1]) for user in df.columns}
+    user_collections = {}
+    for i, row in enumerate(data):
+        for j, val in enumerate(row):
+            if val == 1:
+                if j + 1 not in user_collections:
+                    user_collections[j + 1] = set()
+                user_collections[j + 1].add(i + 1)
 
     # Create common groups
     common_groups = {}
@@ -32,13 +39,11 @@ def get_data():
     min_size = 10  # Base node size
     scale_factor = 1  # Scale factor for node size
 
-    group_to_node = {}
     for group_id, (indices, users) in enumerate(common_groups.items(), 1):
         group_name = f"Group {group_id}"
         num_elements = len(indices)
         node_size = min_size + scale_factor * (num_elements - 2)
         G.add_node(group_name, numbers=indices, size=node_size)
-        group_to_node[group_name] = group_id
 
     # Add edges based on shared numbers with weights
     for (group1, data1), (group2, data2) in combinations(G.nodes(data=True), 2):
