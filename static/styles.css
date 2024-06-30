@@ -135,20 +135,20 @@
     background-size: 12px; /* Size of the custom arrow */
 }
 
-/*#node-size-factor,
+#node-size-factor,
 #edge-length-factor {
     width: 35px;
     height: 15px;
-    margin-top: 4px; /* Space above the element */
-   /* margin-bottom: 4px; /* Space below the element 
-    padding: 4px; /* Space inside the element 
-    font-family: Arial, sans-serif; /* Change the font 
-    color: #3a3939; /* Change the text color 
-    font-size: 0px; /* Size of the text 
-    border-radius: 0px; /* Rounded corners 
-    border: 0px solid #b2b0b0; /* Border around the element 
+    margin-top: 4px; /* Space above the element*/
+    margin-bottom: 4px; /* Space below the element */
+    padding: 4px; /* Space inside the element */
+    font-family: Arial, sans-serif; /* Change the font */
+    color: #3a3939; /* Change the text color */
+    font-size: 0px; /* Size of the text */
+    border-radius: 0px; /* Rounded corners */
+    border: 0px solid #b2b0b0; /* Border around the element */
 }
-*/
+
 
 label {
     margin-top: 4px; /* Space above the element */
