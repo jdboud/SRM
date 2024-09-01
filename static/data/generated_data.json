@@ -1,0 +1,93 @@
+{
+    "nodes": [
+        {
+            "id": "Group 1",
+            "size": 11,
+            "numbers": [
+                1,
+                2,
+                3
+            ]
+        },
+        {
+            "id": "Group 2",
+            "size": 10,
+            "numbers": [
+                2,
+                3
+            ]
+        },
+        {
+            "id": "Group 3",
+            "size": 12,
+            "numbers": [
+                2,
+                3,
+                4,
+                5
+            ]
+        },
+        {
+            "id": "Group 4",
+            "size": 10,
+            "numbers": [
+                4,
+                5
+            ]
+        },
+        {
+            "id": "Group 5",
+            "size": 10,
+            "numbers": [
+                6,
+                7
+            ]
+        },
+        {
+            "id": "Group 6",
+            "size": 13,
+            "numbers": [
+                6,
+                7,
+                8,
+                9,
+                10
+            ]
+        },
+        {
+            "id": "Group 7",
+            "size": 10,
+            "numbers": [
+                96,
+                97
+            ]
+        }
+    ],
+    "links": [
+        {
+            "source": "Group 1",
+            "target": "Group 2",
+            "weight": 2
+        },
+        {
+            "source": "Group 1",
+            "target": "Group 3",
+            "weight": 2
+        },
+        {
+            "source": "Group 2",
+            "target": "Group 3",
+            "weight": 2
+        },
+        {
+            "source": "Group 3",
+            "target": "Group 4",
+            "weight": 2
+        },
+        {
+            "source": "Group 5",
+            "target": "Group 6",
+            "weight": 2
+        }
+    ]
+}

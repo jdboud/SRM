@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Fetch data dynamically from the server
-    fetch('/data')
+    fetch('static/data/generated_data.json')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');

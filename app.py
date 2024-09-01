@@ -6,9 +6,8 @@ import os
 
 app = Flask(__name__, static_url_path='', static_folder='static')
 
-@app.route('/data')
-def get_data():
-    # Load the JSON file
+def generate_data_json():
+    # Load the data from your source (in this case, a JSON file)
     file_path = os.path.join(app.root_path, 'data', 'data.json')
     with open(file_path, 'r') as f:
         data = json.load(f)
@@ -21,7 +20,6 @@ def get_data():
                 if j + 1 not in user_collections:
                     user_collections[j + 1] = set()
                 user_collections[j + 1].add(i + 1)
-                print("User Collections:", user_collections)
    
     # Create common groups
     common_groups = {}
@@ -34,7 +32,6 @@ def get_data():
                     if sorted_common not in common_groups:
                         common_groups[sorted_common] = set()
                     common_groups[sorted_common].update([user1, user2])
-                    print("Common Groups:", common_groups)
 
     # Create the graph
     G = nx.Graph()
@@ -53,14 +50,29 @@ def get_data():
         if shared_numbers:
             weight = len(shared_numbers)
             G.add_edge(group1, group2, weight=weight)
-            print("Edges in Graph:", list(G.edges(data=True)))
+
     # Prepare nodes and links for D3.js
     nodes = [{"id": group, "size": data["size"], "numbers": list(data["numbers"])} for group, data in G.nodes(data=True)]
     links = [{"source": group1, "target": group2, "weight": G.edges[group1, group2]["weight"]} for group1, group2 in G.edges()]
 
-    data = {"nodes": nodes, "links": links}
-    print("Nodes in Graph:", list(G.nodes(data=True)))
+    # Combine nodes and links into a single data structure
+    json_data = {"nodes": nodes, "links": links}
 
+    # Save the data to a JSON file
+    output_path = os.path.join(app.root_path, 'static', 'data', 'generated_data.json')
+    with open(output_path, 'w') as json_file:
+        json.dump(json_data, json_file, indent=4)
+    print(f"Data has been written to {output_path}")
+
+@app.route('/data')
+def get_data():
+    # Call the function to generate the JSON file whenever this endpoint is accessed
+    generate_data_json()
+    
+    # Return the generated JSON file as the response
+    output_path = os.path.join(app.root_path, 'static', 'data', 'generated_data.json')
+    with open(output_path, 'r') as json_file:
+        data = json.load(json_file)
     return jsonify(data)
 
 @app.route('/')
@@ -73,10 +85,5 @@ def serve_static(path):
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
-
-
 
 
