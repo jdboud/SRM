@@ -90,51 +90,53 @@ document.addEventListener('DOMContentLoaded', function() {
         updateThumbnails([]);
     }
 
-    // Fetch data dynamically from the server
-    fetch('static/data/generated_data.json')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(fetchedData => {
-            console.log('Fetched data:', fetchedData);
-            graphData = fetchedData; // Use the fetched data directly
+   // Fetch data dynamically from the server
+fetch('static/data/generated_data.json')
+.then(response => {
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    return response.json();
+})
+.then(fetchedData => {
+    console.log('Fetched data:', fetchedData);
+    graphData = fetchedData; // Use the fetched data directly
 
-            // Calculate min and max numbers for dynamic range sliders
-            const minNumbers = d3.min(graphData.nodes, d => d.numbers.length);
-            const maxNumbers = d3.max(graphData.nodes, d => d.numbers.length);
+    // Calculate min and max numbers for dynamic range sliders
+    const minNumbers = d3.min(graphData.nodes, d => d.numbers.length);
+    const maxNumbers = d3.max(graphData.nodes, d => d.numbers.length);
 
-            // Initialize sliders with dynamic ranges
-            initializeSliders(minNumbers, maxNumbers);
+    // Initialize sliders with dynamic ranges
+    initializeSliders(minNumbers, maxNumbers);
 
-            updateGraph(false);
-            updateGrid();
-            resetGraph();
+    // Initialize the graph after sliders are ready
+    updateGraph(false);
+    updateGrid();
+    resetGraph();
 
-            simulateSliderMovement();
+    // Simulate slider movement to force a refresh
+    simulateSliderMovement();
+})
+.catch(error => {
+    console.error('Error fetching data:', error);
 
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
+    // Optional: Define fallback data if the fetch fails
+    const fallbackData = {
+        nodes: [
+            { id: 'Group A', numbers: [1, 2], size: 10 },
+            { id: 'Group B', numbers: [3, 4], size: 12 }
+        ],
+        links: [
+            { source: 'Group A', target: 'Group B', weight: 2 }
+        ]
+    };
 
-            // Optional: Define fallback data if the fetch fails
-            const fallbackData = {
-                nodes: [
-                    { id: 'Group A', numbers: [1, 2], size: 10 },
-                    { id: 'Group B', numbers: [3, 4], size: 12 }
-                ],
-                links: [
-                    { source: 'Group A', target: 'Group B', weight: 2 }
-                ]
-            };
+    graphData = fallbackData;
+    initializeSliders(2, 4); // Example slider range for fallback data
+    updateGraph(false);
+    updateGrid();
+});
 
-            graphData = fallbackData;
-            initializeSliders(2, 4); // Example slider range for fallback data
-            updateGraph(false);
-            updateGrid();
-        });
 
     function zoomed(event) {
         g.attr('transform', event.transform);
